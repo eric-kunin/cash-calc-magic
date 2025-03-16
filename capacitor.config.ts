@@ -6,7 +6,7 @@ const config: CapacitorConfig = {
   appName: 'cash-calc-magic',
   webDir: 'dist',
   server: {
-    url: 'https://8df01a87-2a74-4557-9e91-e9efdf51ff47.lovableproject.com?forceHideBadge=true',
+    url: 'https://8df01a87-2a74-4557-9e91-e9efdf51ff47.lovableproject.com?forceHideBadge=true&hideBadge=true',
     cleartext: true
   },
   bundledWebRuntime: false
