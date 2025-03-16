@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Calculator, Coins, Receipt, History, RefreshCcw, Save } from "lucide-react";
 import DenominationRow from "./DenominationRow";
@@ -11,21 +10,20 @@ import HistoryDisplay from "./HistoryDisplay";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 
-// Define our denominations
 const COINS = [
-  { value: 0.10, label: "10 Agorot", image: "/lovable-uploads/68c94da5-4b33-4d60-aca7-7c2d4e81841a.png" },
-  { value: 0.50, label: "50 Agorot" },
-  { value: 1, label: "1 Shekel" },
-  { value: 2, label: "2 Shekel" },
-  { value: 5, label: "5 Shekel" },
-  { value: 10, label: "10 Shekel" },
+  { value: 0.10, label: "10 Agorot", image: "/lovable-uploads/29d9897e-e276-43ce-9d8e-e908d3f1be27.png" },
+  { value: 0.50, label: "50 Agorot", image: "/lovable-uploads/5015f44e-5e08-407c-a23d-42ed6dc42401.png" },
+  { value: 1, label: "1 Shekel", image: "/lovable-uploads/639999d8-f0f3-4bbb-8fc9-a040412b6dc5.png" },
+  { value: 2, label: "2 Shekel", image: "/lovable-uploads/43ff1416-5eb2-403f-ac30-4cf3d01bb0c1.png" },
+  { value: 5, label: "5 Shekel", image: "/lovable-uploads/e53c39a9-d94a-4348-a899-b96b6f925616.png" },
+  { value: 10, label: "10 Shekel", image: "/lovable-uploads/f83c66d7-e502-4ad0-a4b0-1cc2502ef7bf.png" },
 ];
 
 const NOTES = [
-  { value: 20, label: "₪20 Note" },
-  { value: 50, label: "₪50 Note" },
-  { value: 100, label: "₪100 Note" },
-  { value: 200, label: "₪200 Note" },
+  { value: 20, label: "₪20 Note", image: "/lovable-uploads/232c4beb-07a5-42f0-a3fb-39efe6cacdd6.png" },
+  { value: 50, label: "₪50 Note", image: "/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
+  { value: 100, label: "₪100 Note", image: "/lovable-uploads/12384e86-2021-4796-b631-10a1ea264d03.png" },
+  { value: 200, label: "₪200 Note", image: "/public/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
 ];
 
 interface DenominationState {
@@ -55,9 +53,7 @@ const CashCounter: React.FC = () => {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [activeTab, setActiveTab] = useState("counter");
 
-  // Load history and current state from localStorage on component mount
   useEffect(() => {
-    // Load history
     const savedHistory = localStorage.getItem(STORAGE_KEY);
     if (savedHistory) {
       try {
@@ -67,25 +63,21 @@ const CashCounter: React.FC = () => {
       }
     }
 
-    // Load current state
     const savedState = localStorage.getItem(CURRENT_STATE_KEY);
     if (savedState) {
       try {
         const parsedState = JSON.parse(savedState);
         setTotals(parsedState.totals || {});
-        // Don't need to set grandTotal, coinTotal, or noteTotal as they will be calculated in the next useEffect
       } catch (e) {
         console.error("Error parsing current state from localStorage:", e);
       }
     }
   }, []);
 
-  // Update the grand total whenever the totals change
   useEffect(() => {
     let coinsSum = 0;
     let notesSum = 0;
     
-    // Calculate subtotals
     Object.entries(totals).forEach(([key, { total }]) => {
       const denomValue = parseFloat(key);
       if (denomValue < 20) {
@@ -99,13 +91,11 @@ const CashCounter: React.FC = () => {
     setNoteTotal(notesSum);
     setGrandTotal(coinsSum + notesSum);
 
-    // Save current state to localStorage when it changes
     if (Object.keys(totals).length > 0) {
       saveCurrentState();
     }
   }, [totals]);
 
-  // Save current state to localStorage
   const saveCurrentState = () => {
     try {
       const currentState = {
@@ -118,7 +108,6 @@ const CashCounter: React.FC = () => {
     }
   };
 
-  // Add event listener for beforeunload to save state when user leaves
   useEffect(() => {
     const handleBeforeUnload = () => {
       saveCurrentState();
@@ -126,13 +115,11 @@ const CashCounter: React.FC = () => {
 
     window.addEventListener('beforeunload', handleBeforeUnload);
     
-    // Cleanup
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [totals]);
 
-  // Handle changes for a denomination
   const handleDenominationChange = (value: number, count: number, total: number) => {
     setTotals(prev => ({
       ...prev,
@@ -140,10 +127,9 @@ const CashCounter: React.FC = () => {
     }));
   };
 
-  // Handle save to history
   const saveToHistory = () => {
-    if (grandTotal === 0) return; // Don't save empty calculations
-    
+    if (grandTotal === 0) return;
+
     const newEntry: HistoryEntry = {
       id: Date.now().toString(),
       date: new Date().toLocaleString(),
@@ -156,7 +142,6 @@ const CashCounter: React.FC = () => {
     const updatedHistory = [newEntry, ...history];
     setHistory(updatedHistory);
     
-    // Save to localStorage
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
       toast.success("Calculation saved successfully!");
@@ -166,12 +151,10 @@ const CashCounter: React.FC = () => {
     }
   };
 
-  // Handle delete history entry
   const deleteHistoryEntry = (id: string) => {
     const updatedHistory = history.filter(entry => entry.id !== id);
     setHistory(updatedHistory);
     
-    // Update localStorage
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
     } catch (e) {
@@ -180,11 +163,9 @@ const CashCounter: React.FC = () => {
     }
   };
 
-  // Handle clear all history
   const clearAllHistory = () => {
     setHistory([]);
     
-    // Clear localStorage
     try {
       localStorage.removeItem(STORAGE_KEY);
     } catch (e) {
@@ -193,21 +174,18 @@ const CashCounter: React.FC = () => {
     }
   };
 
-  // Handle reset
   const handleReset = () => {
     setTotals({});
     localStorage.removeItem(CURRENT_STATE_KEY);
     toast.info("Counter reset");
   };
 
-  // Handle restore from history
   const restoreFromHistory = (entry: HistoryEntry) => {
     setTotals(entry.totals);
     setActiveTab("counter");
     toast.success("Calculation restored successfully");
   };
 
-  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -307,7 +285,7 @@ const CashCounter: React.FC = () => {
                   <span className="text-gray-900 dark:text-gray-100">Coins</span>
                 </h2>
               </div>
-              {COINS.map((coin, index) => (
+              {COINS.map((coin) => (
                 <DenominationRow
                   key={`coin-${coin.value}`}
                   value={coin.value}
@@ -352,6 +330,7 @@ const CashCounter: React.FC = () => {
                   value={note.value}
                   label={note.label}
                   isCoin={false}
+                  image={note.image}
                   onChange={(count, total) => 
                     handleDenominationChange(note.value, count, total)
                   }

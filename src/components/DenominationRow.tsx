@@ -85,19 +85,17 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     >
       <div className="flex items-center">
         {image ? (
-          <div className="relative mr-2 flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
+          <div className="relative mr-2 flex-shrink-0 w-9 h-9 sm:w-11 sm:h-11">
             <motion.img 
               src={image} 
               alt={label} 
-              className="w-full h-full rounded-full object-cover"
-              whileHover={{ scale: 1.1 }}
+              className={cn(
+                "w-full h-full object-contain rounded-full border-2 shadow-sm", 
+                isCoin ? "border-yellow-300" : "border-blue-300"
+              )}
+              whileHover={{ scale: 1.1, rotate: 5 }}
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xs font-bold text-gray-800 drop-shadow-sm">
-                {value.toFixed(value % 1 === 0 ? 0 : 2)}
-              </span>
-            </div>
           </div>
         ) : (
           <motion.div 
@@ -120,7 +118,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
             {label}
           </div>
           <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-            <div className="w-12 sm:w-14">
+            <div className="w-10 sm:w-12">
               <Input
                 type="text"
                 inputMode="numeric"
@@ -132,7 +130,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
               />
             </div>
             <span className="text-gray-400 dark:text-gray-500 text-xs">×</span>
-            <div className="w-12 sm:w-14">
+            <div className="w-10 sm:w-12">
               <Input
                 type="text"
                 inputMode="numeric"
