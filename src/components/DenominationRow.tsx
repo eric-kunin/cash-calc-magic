@@ -13,6 +13,7 @@ interface DenominationRowProps {
   className?: string;
   colorScheme?: "green" | "purple";
   initialCount?: number;
+  resetTrigger?: number;
 }
 
 const DenominationRow: React.FC<DenominationRowProps> = ({
@@ -24,16 +25,17 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   className,
   colorScheme = "green",
   initialCount = 0,
+  resetTrigger = 0,
 }) => {
   const [count, setCount] = useState<string>(initialCount.toString());
   const [multiplier, setMultiplier] = useState<string>("");
   const [total, setTotal] = useState<number>(0);
   
-  // Reset fields when initialCount changes (especially when set to 0)
+  // Reset fields when initialCount changes or resetTrigger changes
   useEffect(() => {
     setCount(initialCount.toString());
     setMultiplier(""); // Reset multiplier to empty string when reset occurs
-  }, [initialCount]);
+  }, [initialCount, resetTrigger]);
   
   // Calculate total when count or multiplier changes
   useEffect(() => {

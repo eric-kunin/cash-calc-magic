@@ -23,6 +23,7 @@ const CashCounter: React.FC = () => {
     noteTotal,
     history,
     activeTab,
+    resetTrigger,
     setActiveTab,
     handleDenominationChange,
     saveToHistory,
@@ -95,12 +96,14 @@ const CashCounter: React.FC = () => {
               totals={totals} 
               onDenominationChange={handleDenominationChange} 
               coinTotal={coinTotal} 
+              resetTrigger={resetTrigger}
             />
             
             <NotesSection 
               totals={totals} 
               onDenominationChange={handleDenominationChange} 
               noteTotal={noteTotal} 
+              resetTrigger={resetTrigger}
             />
           </TabsContent>
           

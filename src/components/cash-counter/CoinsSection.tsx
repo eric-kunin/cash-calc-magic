@@ -15,12 +15,14 @@ interface CoinsSectionProps {
   };
   onDenominationChange: (value: number, count: number, total: number) => void;
   coinTotal: number;
+  resetTrigger?: number;
 }
 
 const CoinsSection: React.FC<CoinsSectionProps> = ({ 
   totals, 
   onDenominationChange,
-  coinTotal
+  coinTotal,
+  resetTrigger = 0
 }) => {
   const { t } = useLanguage();
   
@@ -62,6 +64,7 @@ const CoinsSection: React.FC<CoinsSectionProps> = ({
           initialCount={totals[coin.value]?.count || 0}
           className="animate-slide-up"
           colorScheme="purple"
+          resetTrigger={resetTrigger}
         />
       ))}
       

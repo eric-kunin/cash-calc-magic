@@ -28,6 +28,8 @@ const useCashCounter = () => {
   const [noteTotal, setNoteTotal] = useState<number>(0);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [activeTab, setActiveTab] = useState("counter");
+  // Add a reset trigger to force rerender of components when reset happens
+  const [resetTrigger, setResetTrigger] = useState<number>(0);
   
   const STORAGE_KEY = "cash-counter-history";
   const CURRENT_STATE_KEY = "cash-counter-current-state";
@@ -161,11 +163,19 @@ const useCashCounter = () => {
     }
   };
 
-  // Reset counter
+  // Reset counter with improved reliability
   const handleReset = () => {
+    // Create a completely new empty object instead of modifying the existing one
     setTotals({});
-    localStorage.removeItem(CURRENT_STATE_KEY);
-    toast.info(t('counterReset'));
+    // Increment reset trigger to force children to re-render
+    setResetTrigger(prev => prev + 1);
+    // Clear stored state
+    try {
+      localStorage.removeItem(CURRENT_STATE_KEY);
+      toast.info(t('counterReset'));
+    } catch (e) {
+      console.error("Error removing from localStorage:", e);
+    }
   };
 
   // Restore calculation from history
@@ -183,6 +193,7 @@ const useCashCounter = () => {
     noteTotal,
     history,
     activeTab,
+    resetTrigger,
     
     // Actions
     setActiveTab,

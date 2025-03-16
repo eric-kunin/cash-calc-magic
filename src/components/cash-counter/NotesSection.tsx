@@ -15,12 +15,14 @@ interface NotesSectionProps {
   };
   onDenominationChange: (value: number, count: number, total: number) => void;
   noteTotal: number;
+  resetTrigger?: number;
 }
 
 const NotesSection: React.FC<NotesSectionProps> = ({ 
   totals, 
   onDenominationChange,
-  noteTotal
+  noteTotal,
+  resetTrigger = 0
 }) => {
   const { t } = useLanguage();
   
@@ -60,6 +62,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
           initialCount={totals[note.value]?.count || 0}
           className="animate-slide-up"
           colorScheme="purple"
+          resetTrigger={resetTrigger}
         />
       ))}
       
