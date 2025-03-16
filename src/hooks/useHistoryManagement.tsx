@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { HistoryEntry, DenominationTotals } from "@/types/cashCounter";
 import { useLocalStorage } from "./useLocalStorage";
@@ -29,11 +29,11 @@ export const useHistoryManagement = ({
   const [history, setHistory] = useState<HistoryEntry[]>(storedHistory || []);
   
   // Update local state when storedHistory changes
-  useState(() => {
+  useEffect(() => {
     if (storedHistory) {
       setHistory(storedHistory);
     }
-  });
+  }, [storedHistory]);
 
   const saveToHistory = () => {
     if (grandTotal <= 0) {
@@ -86,7 +86,9 @@ export const useHistoryManagement = ({
   };
 
   const restoreFromHistory = (entry: HistoryEntry) => {
-    setTotals(entry.totals);
+    // Create a deep copy of entry.totals to ensure we don't have reference issues
+    const restoredTotals = JSON.parse(JSON.stringify(entry.totals));
+    setTotals(restoredTotals);
     setActiveTab("counter");
     toast.success(t('calculationRestored'));
   };

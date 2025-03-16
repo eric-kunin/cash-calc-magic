@@ -133,6 +133,7 @@ const HistoryDisplay: React.FC<HistoryDisplayProps> = ({
                       onClick={() => handleRestore(entry)}
                       className="p-2 rounded-full hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-300 transition-colors"
                       title={t('calculationRestored')}
+                      aria-label={t('calculationRestored')}
                     >
                       <RefreshCw size={18} />
                     </button>
@@ -140,6 +141,7 @@ const HistoryDisplay: React.FC<HistoryDisplayProps> = ({
                       onClick={() => handleDelete(entry.id)}
                       className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-colors"
                       title={t('recordDeleted')}
+                      aria-label={t('recordDeleted')}
                     >
                       <Trash2 size={18} />
                     </button>
