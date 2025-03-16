@@ -26,7 +26,8 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
       const denomTotal = parseFloat((denomValue * count).toFixed(2));
       
       // Add to appropriate category (coins or notes)
-      if (denomValue < 20) {
+      // Fix: Correctly categorize based on actual coin denominations
+      if (denomValue <= 10) {
         coinsSum += denomTotal;
       } else {
         notesSum += denomTotal;
