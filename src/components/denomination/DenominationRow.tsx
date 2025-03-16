@@ -1,7 +1,6 @@
 
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 import DenominationIcon from "./DenominationIcon";
 import DenominationInputs from "./DenominationInputs";
 
@@ -90,16 +89,11 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   };
 
   return (
-    <motion.div 
+    <div 
       className={cn(
         "denomination-row p-2 rounded-lg mb-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors",
         className
       )}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: value * 0.04 }}
-      style={{ animationDelay: `${(value * 10) % 200}ms` }}
-      whileHover={{ scale: 1.01 }}
     >
       <div className="flex items-center">
         <DenominationIcon 
@@ -126,7 +120,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
           />
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

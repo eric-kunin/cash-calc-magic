@@ -3,7 +3,6 @@ import React from "react";
 import { Receipt } from "lucide-react";
 import DenominationRow from "../denomination/DenominationRow";
 import { formatCurrency, fixImagePath } from "@/utils/formatters";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/utils/translations";
 
 interface NotesSectionProps {
@@ -34,12 +33,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
   ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 sm:p-5 glass-morphism dark:glass-morphism-dark"
-    >
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 sm:p-5 glass-morphism dark:glass-morphism-dark">
       <div className="mb-4">
         <h2 className="text-lg font-semibold flex items-center">
           <span className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center mr-2">
@@ -60,7 +54,6 @@ const NotesSection: React.FC<NotesSectionProps> = ({
             onDenominationChange(value, count, total)
           }
           initialCount={totals[note.value]?.count || 0}
-          className="animate-slide-up"
           colorScheme="purple"
           resetTrigger={resetTrigger}
         />
@@ -74,7 +67,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
