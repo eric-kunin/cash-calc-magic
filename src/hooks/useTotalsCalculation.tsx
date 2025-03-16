@@ -36,7 +36,12 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
     notesSum = parseFloat(notesSum.toFixed(2));
     const totalSum = parseFloat((coinsSum + notesSum).toFixed(2));
     
-    // Update state
+    // Update state with console logs for debugging
+    console.log("Notes Total:", notesSum);
+    console.log("Coin Total:", coinsSum);
+    console.log("Grand Total:", totalSum);
+    console.log("Raw totals:", totals);
+    
     setCoinTotal(coinsSum);
     setNoteTotal(notesSum);
     setGrandTotal(totalSum);
