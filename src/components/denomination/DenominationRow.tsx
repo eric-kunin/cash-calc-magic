@@ -30,8 +30,8 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   const [countInput, setCountInput] = useState<string>(initialCount > 0 ? initialCount.toString() : "0");
   const [multiplierInput, setMultiplierInput] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
-  const skipEffectRef = useRef(false);
-  const prevValuesRef = useRef({ count: countInput, multiplier: multiplierInput });
+  const updateInProgressRef = useRef(false);
+  const lastNotifiedValuesRef = useRef({ count: 0, multiplier: 1 });
   
   // Handle reset trigger
   useEffect(() => {
@@ -42,44 +42,50 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     }
   }, [resetTrigger]);
   
-  // Handle initialCount changes from props - only when needed
+  // Handle initialCount changes from props - only sync from parent when needed
   useEffect(() => {
+    // Only update if we're not currently editing and value is different
     if (resetTrigger === 0 && 
         initialCount > 0 && 
         initialCount.toString() !== countInput && 
-        !skipEffectRef.current) {
+        !updateInProgressRef.current) {
       setCountInput(initialCount.toString());
     }
   }, [initialCount, resetTrigger, countInput]);
   
-  // Calculate total internally only - no parent notification here
+  // Calculate total and notify parent
   useEffect(() => {
-    // Skip if values haven't changed to avoid needless recalculations
-    if (prevValuesRef.current.count === countInput && 
-        prevValuesRef.current.multiplier === multiplierInput) {
-      return;
-    }
-    
-    // Update previous values reference
-    prevValuesRef.current = { count: countInput, multiplier: multiplierInput };
-    
+    // Parse inputs with careful validation
     const numCount = countInput === "" ? 0 : Math.min(parseInt(countInput) || 0, 9999);
     const numMultiplier = multiplierInput === "" ? 1 : Math.min(parseInt(multiplierInput) || 1, 999);
+    
+    // Calculate new total
     const calculatedTotal = parseFloat((value * numCount * numMultiplier).toFixed(2));
     
-    setTotal(calculatedTotal);
+    // Only update local total if it's different
+    if (total !== calculatedTotal) {
+      setTotal(calculatedTotal);
+    }
     
-    // Set skipEffect flag to prevent total recalculation from triggering initialCount effect
-    skipEffectRef.current = true;
-    
-    // Debounce to notify parent of changes, preventing update loops
-    const notifyTimeout = setTimeout(() => {
-      onChange(value, numCount * numMultiplier, calculatedTotal);
-      skipEffectRef.current = false;
-    }, 50);
-    
-    return () => clearTimeout(notifyTimeout);
-  }, [countInput, multiplierInput, value, onChange]);
+    // Check if we need to notify parent of changes
+    const newCount = numCount * numMultiplier;
+    if (lastNotifiedValuesRef.current.count !== newCount) {
+      // Set flag to prevent initialCount from overriding our value during the update
+      updateInProgressRef.current = true;
+      
+      // Use debounced approach to notify parent
+      const notifyTimeout = setTimeout(() => {
+        lastNotifiedValuesRef.current = { 
+          count: newCount, 
+          multiplier: numMultiplier 
+        };
+        onChange(value, newCount, calculatedTotal);
+        updateInProgressRef.current = false;
+      }, 100);
+      
+      return () => clearTimeout(notifyTimeout);
+    }
+  }, [countInput, multiplierInput, value, onChange, total]);
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
