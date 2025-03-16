@@ -1,9 +1,17 @@
 
 /**
- * Formats a number as currency with the Israeli Shekel symbol
+ * Formats a number as currency with the Israeli Shekel symbol based on language
  */
-export const formatCurrency = (value: number): string => {
-  return new Intl.NumberFormat('he-IL', {
+export const formatCurrency = (value: number, language: string = 'en'): string => {
+  let locale = 'en-US';
+  
+  if (language === 'he') {
+    locale = 'he-IL';
+  } else if (language === 'ru') {
+    locale = 'ru-RU';
+  }
+  
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'ILS',
     minimumFractionDigits: 2,

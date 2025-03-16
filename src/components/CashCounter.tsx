@@ -9,49 +9,52 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HistoryDisplay from "./HistoryDisplay";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
-
-const COINS = [
-  { value: 0.10, label: "10 Agorot", image: "/lovable-uploads/29d9897e-e276-43ce-9d8e-e908d3f1be27.png" },
-  { value: 0.50, label: "50 Agorot", image: "/lovable-uploads/5015f44e-5e08-407c-a23d-42ed6dc42401.png" },
-  { value: 1, label: "1 Shekel", image: "/lovable-uploads/639999d8-f0f3-4bbb-8fc9-a040412b6dc5.png" },
-  { value: 2, label: "2 Shekel", image: "/lovable-uploads/43ff1416-5eb2-403f-ac30-4cf3d01bb0c1.png" },
-  { value: 5, label: "5 Shekel", image: "/lovable-uploads/e53c39a9-d94a-4348-a899-b96b6f925616.png" },
-  { value: 10, label: "10 Shekel", image: "/lovable-uploads/f83c66d7-e502-4ad0-a4b0-1cc2502ef7bf.png" },
-];
-
-const NOTES = [
-  { value: 20, label: "₪20 Note", image: "/lovable-uploads/232c4beb-07a5-42f0-a3fb-39efe6cacdd6.png" },
-  { value: 50, label: "₪50 Note", image: "/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
-  { value: 100, label: "₪100 Note", image: "/lovable-uploads/12384e86-2021-4796-b631-10a1ea264d03.png" },
-  { value: 200, label: "₪200 Note", image: "/public/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
-];
-
-interface DenominationState {
-  [key: string]: {
-    count: number;
-    total: number;
-  };
-}
-
-interface HistoryEntry {
-  id: string;
-  date: string;
-  totals: DenominationState;
-  grandTotal: number;
-  coinTotal: number;
-  noteTotal: number;
-}
-
-const STORAGE_KEY = "cash-counter-history";
-const CURRENT_STATE_KEY = "cash-counter-current-state";
+import { useLanguage } from "@/utils/translations";
 
 const CashCounter: React.FC = () => {
-  const [totals, setTotals] = useState<DenominationState>({});
+  const { t, language } = useLanguage();
+  const [totals, setTotals] = useState<{
+    [key: string]: {
+      count: number;
+      total: number;
+    };
+  }>({});
   const [grandTotal, setGrandTotal] = useState<number>(0);
   const [coinTotal, setCoinTotal] = useState<number>(0);
   const [noteTotal, setNoteTotal] = useState<number>(0);
-  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [history, setHistory] = useState<Array<{
+    id: string;
+    date: string;
+    totals: {
+      [key: string]: {
+        count: number;
+        total: number;
+      };
+    };
+    grandTotal: number;
+    coinTotal: number;
+    noteTotal: number;
+  }>>([]);
   const [activeTab, setActiveTab] = useState("counter");
+
+  const COINS = [
+    { value: 0.10, labelKey: '10Agorot', image: "/lovable-uploads/29d9897e-e276-43ce-9d8e-e908d3f1be27.png" },
+    { value: 0.50, labelKey: '50Agorot', image: "/lovable-uploads/5015f44e-5e08-407c-a23d-42ed6dc42401.png" },
+    { value: 1, labelKey: '1Shekel', image: "/lovable-uploads/639999d8-f0f3-4bbb-8fc9-a040412b6dc5.png" },
+    { value: 2, labelKey: '2Shekel', image: "/lovable-uploads/43ff1416-5eb2-403f-ac30-4cf3d01bb0c1.png" },
+    { value: 5, labelKey: '5Shekel', image: "/lovable-uploads/e53c39a9-d94a-4348-a899-b96b6f925616.png" },
+    { value: 10, labelKey: '10Shekel', image: "/lovable-uploads/f83c66d7-e502-4ad0-a4b0-1cc2502ef7bf.png" },
+  ];
+
+  const NOTES = [
+    { value: 20, labelKey: '20Note', image: "/lovable-uploads/232c4beb-07a5-42f0-a3fb-39efe6cacdd6.png" },
+    { value: 50, labelKey: '50Note', image: "/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
+    { value: 100, labelKey: '100Note', image: "/lovable-uploads/12384e86-2021-4796-b631-10a1ea264d03.png" },
+    { value: 200, labelKey: '200Note', image: "/public/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
+  ];
+
+  const STORAGE_KEY = "cash-counter-history";
+  const CURRENT_STATE_KEY = "cash-counter-current-state";
 
   useEffect(() => {
     const savedHistory = localStorage.getItem(STORAGE_KEY);
@@ -130,9 +133,9 @@ const CashCounter: React.FC = () => {
   const saveToHistory = () => {
     if (grandTotal === 0) return;
 
-    const newEntry: HistoryEntry = {
+    const newEntry = {
       id: Date.now().toString(),
-      date: new Date().toLocaleString(),
+      date: new Date().toLocaleString(language === 'he' ? 'he-IL' : language === 'ru' ? 'ru-RU' : 'en-US'),
       totals: { ...totals },
       grandTotal,
       coinTotal,
@@ -144,7 +147,7 @@ const CashCounter: React.FC = () => {
     
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
-      toast.success("Calculation saved successfully!");
+      toast.success(t('calculationSaved'));
     } catch (e) {
       console.error("Error saving to localStorage:", e);
       toast.error("Failed to save calculation");
@@ -177,13 +180,13 @@ const CashCounter: React.FC = () => {
   const handleReset = () => {
     setTotals({});
     localStorage.removeItem(CURRENT_STATE_KEY);
-    toast.info("Counter reset");
+    toast.info(t('counterReset'));
   };
 
-  const restoreFromHistory = (entry: HistoryEntry) => {
+  const restoreFromHistory = (entry: any) => {
     setTotals(entry.totals);
     setActiveTab("counter");
-    toast.success("Calculation restored successfully");
+    toast.success(t('calculationRestored'));
   };
 
   const containerVariants = {
@@ -208,22 +211,26 @@ const CashCounter: React.FC = () => {
     }
   };
 
+  const isRTL = language === 'he';
+  const dir = isRTL ? 'rtl' : 'ltr';
+
   return (
     <motion.div 
       className="max-w-xl mx-auto p-4"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
+      dir={dir}
     >
       <div className="flex items-center justify-between mb-6 sm:mb-8">
         <motion.div 
           className="flex items-center"
           variants={itemVariants}
         >
-          <CurrencySymbol className="mr-3 sm:mr-4" />
+          <CurrencySymbol className={`${isRTL ? 'ml-3 ml-sm-4' : 'mr-3 mr-sm-4'}`} />
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">Cash Counter</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Calculate your cash totals effortlessly</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">{t('appTitle')}</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{t('appSubtitle')}</p>
           </div>
         </motion.div>
         <motion.div 
@@ -237,7 +244,7 @@ const CashCounter: React.FC = () => {
             className="gap-1 bg-red-600 hover:bg-red-700 transition-all duration-300 flex items-center"
           >
             <RefreshCcw size={16} />
-            <span className="hidden sm:inline">Reset</span>
+            <span className="hidden sm:inline">{t('reset')}</span>
           </Button>
           <Button
             onClick={saveToHistory}
@@ -246,7 +253,7 @@ const CashCounter: React.FC = () => {
             disabled={grandTotal === 0}
           >
             <Save size={16} />
-            <span className="hidden sm:inline">Save</span>
+            <span className="hidden sm:inline">{t('save')}</span>
           </Button>
         </motion.div>
       </div>
@@ -258,15 +265,15 @@ const CashCounter: React.FC = () => {
               value="counter" 
               className="flex-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
             >
-              <Calculator size={16} className="mr-2" />
-              Counter
+              <Calculator size={16} className={`${isRTL ? 'ml-2' : 'mr-2'}`} />
+              {t('counter')}
             </TabsTrigger>
             <TabsTrigger 
               value="history" 
               className="flex-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
             >
-              <History size={16} className="mr-2" />
-              History
+              <History size={16} className={`${isRTL ? 'ml-2' : 'mr-2'}`} />
+              {t('history')}
             </TabsTrigger>
           </TabsList>
           
@@ -282,14 +289,14 @@ const CashCounter: React.FC = () => {
                   <span className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center mr-2">
                     <Coins size={18} className="text-white" />
                   </span>
-                  <span className="text-gray-900 dark:text-gray-100">Coins</span>
+                  <span className="text-gray-900 dark:text-gray-100">{t('coins')}</span>
                 </h2>
               </div>
               {COINS.map((coin) => (
                 <DenominationRow
                   key={`coin-${coin.value}`}
                   value={coin.value}
-                  label={coin.label}
+                  label={t(coin.labelKey)}
                   isCoin={true}
                   image={coin.image}
                   onChange={(count, total) => 
@@ -302,7 +309,7 @@ const CashCounter: React.FC = () => {
               ))}
               <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
                 <div className="text-right">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Coins Subtotal</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('coinsSubtotal')}</div>
                   <div className="text-lg font-semibold text-gray-900 dark:text-white">
                     {formatCurrency(coinTotal)}
                   </div>
@@ -321,14 +328,14 @@ const CashCounter: React.FC = () => {
                   <span className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center mr-2">
                     <Receipt size={18} className="text-white" />
                   </span>
-                  <span className="text-gray-900 dark:text-gray-100">Notes</span>
+                  <span className="text-gray-900 dark:text-gray-100">{t('notes')}</span>
                 </h2>
               </div>
               {NOTES.map((note) => (
                 <DenominationRow
                   key={`note-${note.value}`}
                   value={note.value}
-                  label={note.label}
+                  label={t(note.labelKey)}
                   isCoin={false}
                   image={note.image}
                   onChange={(count, total) => 
@@ -341,7 +348,7 @@ const CashCounter: React.FC = () => {
               ))}
               <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
                 <div className="text-right">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">Notes Subtotal</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('notesSubtotal')}</div>
                   <div className="text-lg font-semibold text-gray-900 dark:text-white">
                     {formatCurrency(noteTotal)}
                   </div>
@@ -369,7 +376,7 @@ const CashCounter: React.FC = () => {
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">Grand Total</h2>
+            <h2 className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">{t('grandTotal')}</h2>
             <AnimatedTotal total={grandTotal} />
           </div>
           <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white">
@@ -384,7 +391,7 @@ const CashCounter: React.FC = () => {
         transition={{ delay: 0.5 }}
         className="text-center text-xs text-gray-500 dark:text-gray-400 mt-8 mb-4"
       >
-        Made by Eric Kunin
+        {t('madeBy')}
       </motion.div>
     </motion.div>
   );
