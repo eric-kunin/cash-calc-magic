@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useRef } from "react";
 import { DenominationTotals } from "@/types/cashCounter";
 import { useTotalsCalculation } from "./useTotalsCalculation";
@@ -56,7 +55,7 @@ const useCashCounter = () => {
     // Set a lock timeout to prevent updates for this denomination for a short period
     updateLockTimeoutRef.current[value] = setTimeout(() => {
       updateLockTimeoutRef.current[value] = null;
-    }, 500);
+    }, 100); // Reduced timeout for more responsive updates
     
     // Update our tracking of previous values
     previousUpdatesRef.current[value] = safeCount;
@@ -69,10 +68,12 @@ const useCashCounter = () => {
         return newTotals;
       }
       
-      // Check if the value is already in totals with the same count
-      if (prev[value]?.count === safeCount) {
+      // Check if the value is already in totals with the same count and total
+      if (prev[value]?.count === safeCount && prev[value]?.total === total) {
         return prev; // No change needed
       }
+      
+      console.log(`Updating denomination ${value} with count ${safeCount} and total ${total}`);
       
       // Otherwise update or add the denomination
       return {
