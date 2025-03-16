@@ -18,19 +18,16 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
       const denomValue = parseFloat(key);
       if (isNaN(denomValue)) return;
       
-      // Get count from entry, ensure it's a valid number
-      const count = entry?.count ?? 0;
-      if (isNaN(count) || count < 0) return;
-      
-      // Calculate this denomination's total
-      const denomTotal = parseFloat((denomValue * count).toFixed(2));
+      // Get total from entry, ensure it's a valid number
+      const total = entry?.total ?? 0;
+      if (isNaN(total) || total < 0) return;
       
       // Add to appropriate category (coins or notes)
       // Notes in Israel are 20, 50, 100, and 200 shekels
       if (denomValue >= 20) {
-        notesSum += denomTotal;
+        notesSum += total;
       } else {
-        coinsSum += denomTotal;
+        coinsSum += total;
       }
     });
     

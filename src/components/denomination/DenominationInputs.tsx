@@ -62,7 +62,7 @@ const DenominationInputs: React.FC<DenominationInputsProps> = ({
       </span>
       <span className="text-gray-400 dark:text-gray-500 text-xs">=</span>
       <span className="text-gray-900 dark:text-gray-100 font-medium text-xs whitespace-nowrap ml-auto">
-        ₪{total.toFixed(2)}
+        {formatCurrency(total, language)}
       </span>
     </div>
   );
