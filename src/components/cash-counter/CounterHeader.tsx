@@ -49,7 +49,7 @@ const CounterHeader: React.FC<CounterHeaderProps> = ({ onReset, onSave, grandTot
           onClick={onSave}
           size="sm"
           className="gap-1 bg-green-600 hover:bg-green-700 text-white transition-all duration-300 flex items-center"
-          disabled={grandTotal === 0}
+          disabled={grandTotal <= 0}
         >
           <Save size={16} />
           <span className="hidden sm:inline">{t('save')}</span>

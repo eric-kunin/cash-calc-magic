@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { useLanguage } from "@/utils/translations";
@@ -28,13 +27,11 @@ const useCashCounter = () => {
   const [noteTotal, setNoteTotal] = useState<number>(0);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [activeTab, setActiveTab] = useState("counter");
-  // Add a reset trigger to force rerender of components when reset happens
   const [resetTrigger, setResetTrigger] = useState<number>(0);
   
   const STORAGE_KEY = "cash-counter-history";
   const CURRENT_STATE_KEY = "cash-counter-current-state";
 
-  // Load data from localStorage on initial render
   useEffect(() => {
     const savedHistory = localStorage.getItem(STORAGE_KEY);
     if (savedHistory) {
@@ -56,7 +53,6 @@ const useCashCounter = () => {
     }
   }, []);
 
-  // Calculate totals when denominations change
   useEffect(() => {
     let coinsSum = 0;
     let notesSum = 0;
@@ -79,7 +75,6 @@ const useCashCounter = () => {
     }
   }, [totals]);
 
-  // Save current state to localStorage
   const saveCurrentState = () => {
     try {
       const currentState = {
@@ -92,7 +87,6 @@ const useCashCounter = () => {
     }
   };
 
-  // Save state before page unload
   useEffect(() => {
     const handleBeforeUnload = () => {
       saveCurrentState();
@@ -105,7 +99,6 @@ const useCashCounter = () => {
     };
   }, [totals]);
 
-  // Handle denomination change
   const handleDenominationChange = (value: number, count: number, total: number) => {
     setTotals(prev => ({
       ...prev,
@@ -113,9 +106,11 @@ const useCashCounter = () => {
     }));
   };
 
-  // Save current state to history
   const saveToHistory = () => {
-    if (grandTotal === 0) return;
+    if (grandTotal <= 0) {
+      toast.error(t('noAmountToSave') || 'Nothing to save');
+      return;
+    }
 
     const newEntry = {
       id: Date.now().toString(),
@@ -138,7 +133,6 @@ const useCashCounter = () => {
     }
   };
 
-  // Delete history entry
   const deleteHistoryEntry = (id: string) => {
     const updatedHistory = history.filter(entry => entry.id !== id);
     setHistory(updatedHistory);
@@ -151,7 +145,6 @@ const useCashCounter = () => {
     }
   };
 
-  // Clear all history
   const clearAllHistory = () => {
     setHistory([]);
     
@@ -163,13 +156,13 @@ const useCashCounter = () => {
     }
   };
 
-  // Reset counter with improved reliability
   const handleReset = () => {
-    // Create a completely new empty object instead of modifying the existing one
     setTotals({});
-    // Increment reset trigger to force children to re-render
-    setResetTrigger(prev => prev + 1);
-    // Clear stored state
+    
+    setTimeout(() => {
+      setResetTrigger(prev => prev + 1);
+    }, 10);
+    
     try {
       localStorage.removeItem(CURRENT_STATE_KEY);
       toast.info(t('counterReset'));
@@ -178,7 +171,6 @@ const useCashCounter = () => {
     }
   };
 
-  // Restore calculation from history
   const restoreFromHistory = (entry: HistoryEntry) => {
     setTotals(entry.totals);
     setActiveTab("counter");
@@ -186,7 +178,6 @@ const useCashCounter = () => {
   };
 
   return {
-    // State
     totals,
     grandTotal,
     coinTotal,
@@ -195,7 +186,6 @@ const useCashCounter = () => {
     activeTab,
     resetTrigger,
     
-    // Actions
     setActiveTab,
     handleDenominationChange,
     saveToHistory,

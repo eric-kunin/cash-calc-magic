@@ -31,11 +31,21 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   const [multiplier, setMultiplier] = useState<string>("");
   const [total, setTotal] = useState<number>(0);
   
-  // Reset fields when initialCount changes or resetTrigger changes
+  // Reset fields when resetTrigger changes, preventing flicker
   useEffect(() => {
-    setCount(initialCount.toString());
-    setMultiplier(""); // Reset multiplier to empty string when reset occurs
-  }, [initialCount, resetTrigger]);
+    if (resetTrigger > 0) {
+      // Directly set to initial values without causing a UI flicker
+      setCount("0");
+      setMultiplier("");
+    }
+  }, [resetTrigger]);
+  
+  // Update when initialCount changes but not on reset
+  useEffect(() => {
+    if (resetTrigger === 0) {
+      setCount(initialCount.toString());
+    }
+  }, [initialCount]);
   
   // Calculate total when count or multiplier changes
   useEffect(() => {
