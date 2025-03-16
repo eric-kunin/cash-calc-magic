@@ -53,10 +53,15 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   }, [count, multiplier, value]);
   
   const calculateAndUpdateTotal = () => {
-    // Convert empty strings to default values for calculation
-    const parsedCount = count === "" ? 0 : parseInt(count) || 0;
-    // Always ensure multiplier is at least 1 for calculation
-    const parsedMultiplier = multiplier === "" ? 1 : parseInt(multiplier) || 1;
+    // Parse values carefully to avoid NaN issues
+    const parsedCount = count === "" ? 0 : parseInt(count);
+    const parsedMultiplier = multiplier === "" || multiplier === "0" ? 1 : parseInt(multiplier);
+    
+    if (isNaN(parsedCount) || isNaN(parsedMultiplier)) {
+      setTotal(0);
+      onChange(0, 0);
+      return;
+    }
     
     // Calculate the total with fixed precision to avoid floating point errors
     const calculatedTotal = parseFloat((value * parsedCount * parsedMultiplier).toFixed(2));
@@ -65,17 +70,23 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   };
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow numeric input and empty string
     const newValue = e.target.value.replace(/[^0-9]/g, '');
-    setCount(newValue);
+    
+    // Prevent values from becoming too large
+    if (newValue === '' || parseInt(newValue) <= 9999) {
+      setCount(newValue);
+    }
   };
 
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow numeric input and empty string
     const newValue = e.target.value.replace(/[^0-9]/g, '');
-    // Make sure we don't accept 0 as a multiplier value
-    const validMultiplier = newValue === "" || newValue === "0" ? "1" : newValue;
-    setMultiplier(validMultiplier);
+    
+    // Prevent values from becoming too large and handle empty/zero values
+    if (newValue === '' || (parseInt(newValue) <= 999 && parseInt(newValue) > 0)) {
+      setMultiplier(newValue);
+    } else if (newValue === '0') {
+      setMultiplier('1'); // Default to 1 if user enters 0
+    }
   };
 
   // Color scheme variants
