@@ -33,19 +33,18 @@ const useCashCounter = () => {
   });
 
   const handleDenominationChange = (value: number, count: number, total: number) => {
-    // Basic validation to prevent unreasonable values
-    if (count > 9999 || isNaN(count)) {
-      count = 0;
+    // Validate the count (should already be validated in the component)
+    if (count > 9999) {
+      count = 9999;
     }
     
-    // Make sure total is consistent with the value and count
-    // This calculation acts as a safeguard against inconsistent values
+    // Calculate total directly from value and count to ensure consistency
     const calculatedTotal = parseFloat((value * count).toFixed(2));
     
     setTotals(prev => ({
       ...prev,
       [value]: { 
-        count: count, 
+        count, 
         total: calculatedTotal 
       }
     }));

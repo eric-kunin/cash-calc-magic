@@ -57,16 +57,14 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     const parsedCount = count === "" ? 0 : parseInt(count);
     const parsedMultiplier = multiplier === "" || multiplier === "0" ? 1 : parseInt(multiplier);
     
-    if (isNaN(parsedCount) || isNaN(parsedMultiplier)) {
-      setTotal(0);
-      onChange(0, 0);
-      return;
-    }
+    // If any value is NaN, use 0 instead
+    const safeCount = isNaN(parsedCount) ? 0 : parsedCount;
+    const safeMultiplier = isNaN(parsedMultiplier) ? 1 : parsedMultiplier;
     
     // Calculate the total with fixed precision to avoid floating point errors
-    const calculatedTotal = parseFloat((value * parsedCount * parsedMultiplier).toFixed(2));
+    const calculatedTotal = parseFloat((value * safeCount * safeMultiplier).toFixed(2));
     setTotal(calculatedTotal);
-    onChange(parsedCount * parsedMultiplier, calculatedTotal);
+    onChange(safeCount * safeMultiplier, calculatedTotal);
   };
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
