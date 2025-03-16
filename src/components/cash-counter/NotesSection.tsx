@@ -25,10 +25,10 @@ const NotesSection: React.FC<NotesSectionProps> = ({
   const { t } = useLanguage();
   
   const NOTES = [
-    { value: 20, labelKey: '20Note', image: "/img/note-20.png" },
-    { value: 50, labelKey: '50Note', image: "/img/note-50.png" },
-    { value: 100, labelKey: '100Note', image: "/img/note-100.png" },
-    { value: 200, labelKey: '200Note', image: "/img/note-200.png" },
+    { value: 20, labelKey: '20Note', image: "/lovable-uploads/f83c66d7-e502-4ad0-a4b0-1cc2502ef7bf.png" },
+    { value: 50, labelKey: '50Note', image: "/lovable-uploads/232c4beb-07a5-42f0-a3fb-39efe6cacdd6.png" },
+    { value: 100, labelKey: '100Note', image: "/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
+    { value: 200, labelKey: '200Note', image: "/lovable-uploads/12384e86-2021-4796-b631-10a1ea264d03.png" },
   ];
 
   return (
