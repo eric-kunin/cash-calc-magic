@@ -8,6 +8,7 @@ import { formatCurrency } from "@/utils/formatters";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HistoryDisplay from "./HistoryDisplay";
+import { Toaster, toast } from "sonner";
 
 // Define our denominations
 const COINS = [
@@ -111,8 +112,10 @@ const CashCounter: React.FC = () => {
     // Save to localStorage
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
+      toast.success("Calculation saved successfully!");
     } catch (e) {
       console.error("Error saving to localStorage:", e);
+      toast.error("Failed to save calculation");
     }
   };
 
@@ -126,12 +129,27 @@ const CashCounter: React.FC = () => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
     } catch (e) {
       console.error("Error updating localStorage:", e);
+      toast.error("Failed to update history");
+    }
+  };
+
+  // Handle clear all history
+  const clearAllHistory = () => {
+    setHistory([]);
+    
+    // Clear localStorage
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.error("Error clearing localStorage:", e);
+      toast.error("Failed to clear history");
     }
   };
 
   // Handle reset
   const handleReset = () => {
     setTotals({});
+    toast.info("Counter reset");
   };
 
   // Handle restore from history
@@ -145,6 +163,7 @@ const CashCounter: React.FC = () => {
 
   return (
     <div className="max-w-xl mx-auto p-4 animate-fade-in">
+      <Toaster position="top-center" richColors />
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center">
           <CurrencySymbol className="mr-4" />
@@ -213,7 +232,7 @@ const CashCounter: React.FC = () => {
                 onChange={(count, total) => 
                   handleDenominationChange(coin.value, count, total)
                 }
-                count={totals[coin.value]?.count || 0}
+                initialCount={totals[coin.value]?.count || 0}
                 className="animate-slide-up"
                 colorScheme="purple"
               />
@@ -251,7 +270,7 @@ const CashCounter: React.FC = () => {
                 onChange={(count, total) => 
                   handleDenominationChange(note.value, count, total)
                 }
-                count={totals[note.value]?.count || 0}
+                initialCount={totals[note.value]?.count || 0}
                 className="animate-slide-up"
                 colorScheme="purple"
               />
@@ -271,7 +290,8 @@ const CashCounter: React.FC = () => {
           <HistoryDisplay 
             history={history} 
             onDelete={deleteHistoryEntry} 
-            onRestore={restoreFromHistory} 
+            onRestore={restoreFromHistory}
+            onClearAll={clearAllHistory}
           />
         </TabsContent>
       </Tabs>

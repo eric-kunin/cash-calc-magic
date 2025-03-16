@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Trash2, RefreshCw } from 'lucide-react';
+import { Trash2, RefreshCw, History as HistoryIcon } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatters';
 import { motion } from 'framer-motion';
 import { 
@@ -11,6 +11,7 @@ import {
   TableHeader, 
   TableRow 
 } from '@/components/ui/table';
+import { toast } from 'sonner';
 
 interface DenominationState {
   [key: string]: {
@@ -32,18 +33,37 @@ interface HistoryDisplayProps {
   history: HistoryEntry[];
   onDelete: (id: string) => void;
   onRestore: (entry: HistoryEntry) => void;
+  onClearAll?: () => void;
 }
 
 const HistoryDisplay: React.FC<HistoryDisplayProps> = ({ 
   history, 
   onDelete, 
-  onRestore 
+  onRestore,
+  onClearAll
 }) => {
+  const handleDelete = (id: string) => {
+    onDelete(id);
+    toast.success('Record deleted from history');
+  };
+
+  const handleRestore = (entry: HistoryEntry) => {
+    onRestore(entry);
+    toast.success('Calculation restored');
+  };
+
+  const handleClearAll = () => {
+    if (onClearAll && window.confirm('Are you sure you want to clear all history?')) {
+      onClearAll();
+      toast.success('History cleared successfully');
+    }
+  };
+
   if (history.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
         <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center mb-4">
-          <History size={32} className="text-purple-500 dark:text-purple-300" />
+          <HistoryIcon size={32} className="text-purple-500 dark:text-purple-300" />
         </div>
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No History Yet</h3>
         <p className="text-gray-500 dark:text-gray-400 text-center">
@@ -55,6 +75,21 @@ const HistoryDisplay: React.FC<HistoryDisplayProps> = ({
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
+      <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-700">
+        <h3 className="font-medium text-gray-900 dark:text-white flex items-center">
+          <HistoryIcon size={18} className="mr-2 text-purple-500" />
+          Saved Calculations
+        </h3>
+        {history.length > 0 && (
+          <button
+            onClick={handleClearAll}
+            className="flex items-center px-3 py-1 text-sm bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 rounded-md hover:bg-red-200 dark:hover:bg-red-800/50 transition-colors"
+          >
+            <Trash2 size={14} className="mr-1" />
+            Clear All
+          </button>
+        )}
+      </div>
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
@@ -90,14 +125,14 @@ const HistoryDisplay: React.FC<HistoryDisplayProps> = ({
                 <TableCell className="text-right">
                   <div className="flex justify-end space-x-2">
                     <button
-                      onClick={() => onRestore(entry)}
+                      onClick={() => handleRestore(entry)}
                       className="p-2 rounded-full hover:bg-purple-100 dark:hover:bg-purple-900/50 text-purple-600 dark:text-purple-300 transition-colors"
                       title="Restore this calculation"
                     >
                       <RefreshCw size={18} />
                     </button>
                     <button
-                      onClick={() => onDelete(entry.id)}
+                      onClick={() => handleDelete(entry.id)}
                       className="p-2 rounded-full hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-colors"
                       title="Delete from history"
                     >
