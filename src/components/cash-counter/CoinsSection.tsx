@@ -23,7 +23,7 @@ const CoinsSection: React.FC<CoinsSectionProps> = ({
   coinTotal,
   resetTrigger = 0
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const COINS = [
     { value: 0.10, labelKey: '10Agorot', image: "/lovable-uploads/68c94da5-4b33-4d60-aca7-7c2d4e81841a.png" },
@@ -65,7 +65,7 @@ const CoinsSection: React.FC<CoinsSectionProps> = ({
         <div className="text-right">
           <div className="text-sm text-gray-500 dark:text-gray-400">{t('coinsSubtotal')}</div>
           <div className="text-lg font-semibold text-gray-900 dark:text-white">
-            {formatCurrency(coinTotal)}
+            {formatCurrency(coinTotal, language)}
           </div>
         </div>
       </div>

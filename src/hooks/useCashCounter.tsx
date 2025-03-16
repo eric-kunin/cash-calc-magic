@@ -9,7 +9,6 @@ const useCashCounter = () => {
   const [activeTab, setActiveTab] = useState("counter");
   const [resetTrigger, setResetTrigger] = useState<number>(0);
   const previousUpdatesRef = useRef<{[key: number]: number}>({});
-  const updateLockTimeoutRef = useRef<{[key: number]: NodeJS.Timeout | null}>({});
   
   // Calculate totals based on denominations
   const { grandTotal, coinTotal, noteTotal } = useTotalsCalculation(totals);
@@ -47,16 +46,6 @@ const useCashCounter = () => {
       return;
     }
     
-    // Prevent rapid updates for the same denomination by using a lock timeout
-    if (updateLockTimeoutRef.current[value]) {
-      clearTimeout(updateLockTimeoutRef.current[value]!);
-    }
-    
-    // Set a lock timeout to prevent updates for this denomination for a short period
-    updateLockTimeoutRef.current[value] = setTimeout(() => {
-      updateLockTimeoutRef.current[value] = null;
-    }, 100); // Reduced timeout for more responsive updates
-    
     // Update our tracking of previous values
     previousUpdatesRef.current[value] = safeCount;
     
@@ -68,14 +57,9 @@ const useCashCounter = () => {
         return newTotals;
       }
       
-      // Check if the value is already in totals with the same count and total
-      if (prev[value]?.count === safeCount && prev[value]?.total === total) {
-        return prev; // No change needed
-      }
-      
+      // Otherwise update or add the denomination with precise total
       console.log(`Updating denomination ${value} with count ${safeCount} and total ${total}`);
       
-      // Otherwise update or add the denomination
       return {
         ...prev,
         [value]: { 

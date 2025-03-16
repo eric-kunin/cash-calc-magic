@@ -52,7 +52,7 @@ export function useDenominationState({
     }
   }, [initialCount, resetTrigger]);
   
-  // Calculate the total only when inputs change - this doesn't notify the parent
+  // Calculate the total and notify parent immediately when inputs change
   useEffect(() => {
     // Parse inputs with careful validation
     const count = parseInt(countInput) || 0;
@@ -61,56 +61,32 @@ export function useDenominationState({
     // Calculate new total
     const calculatedTotal = parseFloat((value * count * multiplier).toFixed(2));
     
-    // Only update local total if it's different
-    if (total !== calculatedTotal) {
-      setTotal(calculatedTotal);
-    }
-  }, [countInput, multiplierInput, value]);
-  
-  // Separate effect only for notifying the parent of changes
-  useEffect(() => {
-    // Skip if we're resetting or during initial sync
-    if (resetTrigger > 0 || isInitialSyncRef.current) {
-      return;
-    }
+    // Update local total
+    setTotal(calculatedTotal);
     
-    const notifyParent = () => {
-      const count = parseInt(countInput) || 0;
-      const multiplier = parseInt(multiplierInput) || 1;
-      const effectiveCount = count * multiplier;
-      const newTotal = parseFloat((value * count * multiplier).toFixed(2));
+    // Notify parent of changes immediately for real-time updates
+    const effectiveCount = count * multiplier;
+    
+    // Only notify if values actually changed
+    if (effectiveCount !== lastReportedValues.current.count || 
+        calculatedTotal !== lastReportedValues.current.total) {
       
-      // Only notify if values actually changed
-      if (effectiveCount !== lastReportedValues.current.count ||
-          newTotal !== lastReportedValues.current.total) {
-        
-        // Update our tracking of reported values
-        lastReportedValues.current = {
-          count: effectiveCount,
-          multiplier,
-          total: newTotal
-        };
-        
-        // Notify the parent component
-        onChange(value, effectiveCount, newTotal);
-      }
-    };
-    
-    // Clear any existing timeout to prevent multiple notifications
-    if (notificationTimeoutRef.current) {
-      clearTimeout(notificationTimeoutRef.current);
-    }
-    
-    // Delay notification to batch updates and break cycles
-    notificationTimeoutRef.current = setTimeout(notifyParent, 300);
-    
-    // Cleanup
-    return () => {
+      // Update our tracking of reported values
+      lastReportedValues.current = {
+        count: effectiveCount,
+        multiplier,
+        total: calculatedTotal
+      };
+      
+      // Clear any existing timeout
       if (notificationTimeoutRef.current) {
         clearTimeout(notificationTimeoutRef.current);
       }
-    };
-  }, [total, value, onChange, countInput, multiplierInput, resetTrigger]);
+      
+      // Notify parent immediately
+      onChange(value, effectiveCount, calculatedTotal);
+    }
+  }, [countInput, multiplierInput, value, onChange]);
   
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
