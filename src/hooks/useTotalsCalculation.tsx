@@ -26,11 +26,11 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
       const denomTotal = parseFloat((denomValue * count).toFixed(2));
       
       // Add to appropriate category (coins or notes)
-      // Fix: Correctly categorize based on actual coin denominations
-      if (denomValue <= 10) {
-        coinsSum += denomTotal;
-      } else {
+      // Notes in Israel are 20, 50, 100, and 200 shekels
+      if (denomValue >= 20) {
         notesSum += denomTotal;
+      } else {
+        coinsSum += denomTotal;
       }
     });
     
