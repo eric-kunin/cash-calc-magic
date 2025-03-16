@@ -3,7 +3,6 @@ import React from "react";
 import { Coins } from "lucide-react";
 import DenominationRow from "../denomination/DenominationRow";
 import { formatCurrency, fixImagePath } from "@/utils/formatters";
-import { motion } from "framer-motion";
 import { useLanguage } from "@/utils/translations";
 
 interface CoinsSectionProps {
@@ -36,12 +35,7 @@ const CoinsSection: React.FC<CoinsSectionProps> = ({
   ];
 
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 sm:p-5 glass-morphism dark:glass-morphism-dark"
-    >
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 sm:p-5 glass-morphism dark:glass-morphism-dark">
       <div className="mb-4">
         <h2 className="text-lg font-semibold flex items-center">
           <span className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center mr-2">
@@ -62,7 +56,6 @@ const CoinsSection: React.FC<CoinsSectionProps> = ({
             onDenominationChange(value, count, total)
           }
           initialCount={totals[coin.value]?.count || 0}
-          className="animate-slide-up"
           colorScheme="purple"
           resetTrigger={resetTrigger}
         />
@@ -76,7 +69,7 @@ const CoinsSection: React.FC<CoinsSectionProps> = ({
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

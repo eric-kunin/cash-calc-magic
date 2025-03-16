@@ -31,6 +31,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   const [multiplierInput, setMultiplierInput] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
   
+  // Handle reset trigger
   useEffect(() => {
     if (resetTrigger > 0) {
       setCountInput("0");
@@ -39,12 +40,14 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     }
   }, [resetTrigger]);
   
+  // Handle initialCount changes
   useEffect(() => {
-    if (resetTrigger === 0 && initialCount > 0) {
+    if (resetTrigger === 0 && initialCount > 0 && initialCount.toString() !== countInput) {
       setCountInput(initialCount.toString());
     }
   }, [initialCount, resetTrigger]);
   
+  // Calculate total and update parent
   useEffect(() => {
     const numCount = countInput === "" ? 0 : Math.min(parseInt(countInput) || 0, 9999);
     const numMultiplier = multiplierInput === "" ? 1 : Math.min(parseInt(multiplierInput) || 1, 999);
@@ -53,6 +56,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     
     setTotal(calculatedTotal);
     
+    // Only notify parent when values actually change
     onChange(value, numCount * numMultiplier, calculatedTotal);
   }, [countInput, multiplierInput, value, onChange]);
 
@@ -61,8 +65,11 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     
     if (newValue === '') {
       setCountInput('');
-    } else if (parseInt(newValue) <= 9999) {
-      setCountInput(newValue);
+    } else {
+      const parsed = parseInt(newValue);
+      if (!isNaN(parsed) && parsed <= 9999) {
+        setCountInput(newValue);
+      }
     }
   };
 
@@ -71,8 +78,11 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     
     if (newValue === '') {
       setMultiplierInput('');
-    } else if (parseInt(newValue) <= 999) {
-      setMultiplierInput(newValue);
+    } else {
+      const parsed = parseInt(newValue);
+      if (!isNaN(parsed) && parsed <= 999) {
+        setMultiplierInput(newValue);
+      }
     }
   };
 
