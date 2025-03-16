@@ -32,7 +32,8 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   // Calculate total when count or multiplier changes
   useEffect(() => {
     const parsedCount = parseInt(count) || 0;
-    const parsedMultiplier = parseInt(multiplier) || 1;
+    // Allow empty multiplier field, defaulting to 1 for calculations
+    const parsedMultiplier = multiplier === "" ? 1 : parseInt(multiplier) || 1;
     const calculatedTotal = value * parsedCount * parsedMultiplier;
     setTotal(calculatedTotal);
     onChange(parsedCount * parsedMultiplier, calculatedTotal);
@@ -45,7 +46,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
 
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
-    // Don't reset to "1" when the field is empty during editing
+    // Allow empty value, but store it as empty string
     setMultiplier(newValue);
   };
 
