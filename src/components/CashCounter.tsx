@@ -1,11 +1,13 @@
 
 import React, { useEffect, useState } from "react";
-import { Calculator, Coins, Receipt } from "lucide-react";
+import { Calculator, Coins, Receipt, History } from "lucide-react";
 import DenominationRow from "./DenominationRow";
 import AnimatedTotal from "./AnimatedTotal";
 import CurrencySymbol from "./CurrencySymbol";
 import { formatCurrency } from "@/utils/formatters";
 import { motion } from "framer-motion";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import HistoryDisplay from "./HistoryDisplay";
 
 // Define our denominations
 const COINS = [
@@ -31,11 +33,36 @@ interface DenominationState {
   };
 }
 
+interface HistoryEntry {
+  id: string;
+  date: string;
+  totals: DenominationState;
+  grandTotal: number;
+  coinTotal: number;
+  noteTotal: number;
+}
+
+const STORAGE_KEY = "cash-counter-history";
+
 const CashCounter: React.FC = () => {
   const [totals, setTotals] = useState<DenominationState>({});
   const [grandTotal, setGrandTotal] = useState<number>(0);
   const [coinTotal, setCoinTotal] = useState<number>(0);
   const [noteTotal, setNoteTotal] = useState<number>(0);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
+  const [activeTab, setActiveTab] = useState("counter");
+
+  // Load history from localStorage on component mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem(STORAGE_KEY);
+    if (savedHistory) {
+      try {
+        setHistory(JSON.parse(savedHistory));
+      } catch (e) {
+        console.error("Error parsing history from localStorage:", e);
+      }
+    }
+  }, []);
 
   // Update the grand total whenever the totals change
   useEffect(() => {
@@ -65,9 +92,55 @@ const CashCounter: React.FC = () => {
     }));
   };
 
+  // Handle save to history
+  const saveToHistory = () => {
+    if (grandTotal === 0) return; // Don't save empty calculations
+    
+    const newEntry: HistoryEntry = {
+      id: Date.now().toString(),
+      date: new Date().toLocaleString(),
+      totals: { ...totals },
+      grandTotal,
+      coinTotal,
+      noteTotal
+    };
+    
+    const updatedHistory = [newEntry, ...history];
+    setHistory(updatedHistory);
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
+    } catch (e) {
+      console.error("Error saving to localStorage:", e);
+    }
+  };
+
+  // Handle delete history entry
+  const deleteHistoryEntry = (id: string) => {
+    const updatedHistory = history.filter(entry => entry.id !== id);
+    setHistory(updatedHistory);
+    
+    // Update localStorage
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
+    } catch (e) {
+      console.error("Error updating localStorage:", e);
+    }
+  };
+
   // Handle reset
   const handleReset = () => {
     setTotals({});
+  };
+
+  // Handle restore from history
+  const restoreFromHistory = (entry: HistoryEntry) => {
+    setTotals(entry.totals);
+    setCoinTotal(entry.coinTotal);
+    setNoteTotal(entry.noteTotal);
+    setGrandTotal(entry.grandTotal);
+    setActiveTab("counter");
   };
 
   return (
@@ -80,90 +153,128 @@ const CashCounter: React.FC = () => {
             <p className="text-sm text-gray-500 dark:text-gray-400">Calculate your cash totals effortlessly</p>
           </div>
         </div>
-        <button
-          onClick={handleReset}
-          className="px-4 py-2 text-sm bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100 rounded-md hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
-        >
-          Reset
-        </button>
+        <div className="flex space-x-2">
+          <button
+            onClick={handleReset}
+            className="px-4 py-2 text-sm bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100 rounded-md hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
+          >
+            Reset
+          </button>
+          <button
+            onClick={saveToHistory}
+            className="px-4 py-2 text-sm bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors"
+            disabled={grandTotal === 0}
+          >
+            Save
+          </button>
+        </div>
       </div>
       
-      <div className="space-y-6 mb-8">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 glass-morphism dark:glass-morphism-dark animate-slide-up"
-        >
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold flex items-center">
-              <span className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center mr-2">
-                <Coins size={18} className="text-white" />
-              </span>
-              <span className="text-gray-900 dark:text-gray-100">Coins</span>
-            </h2>
-          </div>
-          {COINS.map((coin, index) => (
-            <DenominationRow
-              key={`coin-${coin.value}`}
-              value={coin.value}
-              label={coin.label}
-              isCoin={true}
-              image={coin.image}
-              onChange={(count, total) => 
-                handleDenominationChange(coin.value, count, total)
-              }
-              className="animate-slide-up"
-              colorScheme="purple"
-            />
-          ))}
-          <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-            <div className="text-right">
-              <div className="text-sm text-gray-500 dark:text-gray-400">Coins Subtotal</div>
-              <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                {formatCurrency(coinTotal)}
-              </div>
-            </div>
-          </div>
-        </motion.div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+        <TabsList className="w-full mb-6 bg-purple-100 dark:bg-gray-800">
+          <TabsTrigger 
+            value="counter" 
+            className="flex-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+          >
+            <Calculator size={16} className="mr-2" />
+            Counter
+          </TabsTrigger>
+          <TabsTrigger 
+            value="history" 
+            className="flex-1 data-[state=active]:bg-purple-600 data-[state=active]:text-white"
+          >
+            <History size={16} className="mr-2" />
+            History
+          </TabsTrigger>
+        </TabsList>
         
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.1 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 glass-morphism dark:glass-morphism-dark"
-        >
-          <div className="mb-4">
-            <h2 className="text-lg font-semibold flex items-center">
-              <span className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center mr-2">
-                <Receipt size={18} className="text-white" />
-              </span>
-              <span className="text-gray-900 dark:text-gray-100">Notes</span>
-            </h2>
-          </div>
-          {NOTES.map((note) => (
-            <DenominationRow
-              key={`note-${note.value}`}
-              value={note.value}
-              label={note.label}
-              isCoin={false}
-              onChange={(count, total) => 
-                handleDenominationChange(note.value, count, total)
-              }
-              className="animate-slide-up"
-              colorScheme="purple"
-            />
-          ))}
-          <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-            <div className="text-right">
-              <div className="text-sm text-gray-500 dark:text-gray-400">Notes Subtotal</div>
-              <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                {formatCurrency(noteTotal)}
+        <TabsContent value="counter" className="space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 glass-morphism dark:glass-morphism-dark animate-slide-up"
+          >
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold flex items-center">
+                <span className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center mr-2">
+                  <Coins size={18} className="text-white" />
+                </span>
+                <span className="text-gray-900 dark:text-gray-100">Coins</span>
+              </h2>
+            </div>
+            {COINS.map((coin, index) => (
+              <DenominationRow
+                key={`coin-${coin.value}`}
+                value={coin.value}
+                label={coin.label}
+                isCoin={true}
+                image={coin.image}
+                onChange={(count, total) => 
+                  handleDenominationChange(coin.value, count, total)
+                }
+                count={totals[coin.value]?.count || 0}
+                className="animate-slide-up"
+                colorScheme="purple"
+              />
+            ))}
+            <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+              <div className="text-right">
+                <div className="text-sm text-gray-500 dark:text-gray-400">Coins Subtotal</div>
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {formatCurrency(coinTotal)}
+                </div>
               </div>
             </div>
-          </div>
-        </motion.div>
-      </div>
+          </motion.div>
+          
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 glass-morphism dark:glass-morphism-dark"
+          >
+            <div className="mb-4">
+              <h2 className="text-lg font-semibold flex items-center">
+                <span className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center mr-2">
+                  <Receipt size={18} className="text-white" />
+                </span>
+                <span className="text-gray-900 dark:text-gray-100">Notes</span>
+              </h2>
+            </div>
+            {NOTES.map((note) => (
+              <DenominationRow
+                key={`note-${note.value}`}
+                value={note.value}
+                label={note.label}
+                isCoin={false}
+                onChange={(count, total) => 
+                  handleDenominationChange(note.value, count, total)
+                }
+                count={totals[note.value]?.count || 0}
+                className="animate-slide-up"
+                colorScheme="purple"
+              />
+            ))}
+            <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
+              <div className="text-right">
+                <div className="text-sm text-gray-500 dark:text-gray-400">Notes Subtotal</div>
+                <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {formatCurrency(noteTotal)}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </TabsContent>
+        
+        <TabsContent value="history">
+          <HistoryDisplay 
+            history={history} 
+            onDelete={deleteHistoryEntry} 
+            onRestore={restoreFromHistory} 
+          />
+        </TabsContent>
+      </Tabs>
       
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
