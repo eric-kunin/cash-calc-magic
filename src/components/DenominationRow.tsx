@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
+import { motion } from "framer-motion";
 
 interface DenominationRowProps {
   value: number;
@@ -11,7 +12,7 @@ interface DenominationRowProps {
   onChange: (amount: number, total: number) => void;
   className?: string;
   colorScheme?: "green" | "purple";
-  initialCount?: number; // Added initialCount prop
+  initialCount?: number;
 }
 
 const DenominationRow: React.FC<DenominationRowProps> = ({
@@ -22,7 +23,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   onChange,
   className,
   colorScheme = "green",
-  initialCount = 0, // Default to 0
+  initialCount = 0,
 }) => {
   const [count, setCount] = useState<string>(initialCount.toString());
   const [multiplier, setMultiplier] = useState<string>("1");
@@ -71,81 +72,89 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   const bgColor = getBgColor();
 
   return (
-    <div 
+    <motion.div 
       className={cn(
         "denomination-row p-2 rounded-lg mb-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors",
         className
       )}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: value * 0.04 }}
       style={{ animationDelay: `${(value * 10) % 200}ms` }}
+      whileHover={{ scale: 1.01 }}
     >
       <div className="flex items-center">
         {image ? (
-          <div className="relative mr-2 flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12">
-            <img 
+          <div className="relative mr-2 flex-shrink-0 w-8 h-8 sm:w-10 sm:h-10">
+            <motion.img 
               src={image} 
               alt={label} 
               className="w-full h-full rounded-full object-cover"
+              whileHover={{ scale: 1.1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 10 }}
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-xs sm:text-sm font-bold text-gray-800 drop-shadow-sm">
+              <span className="text-xs font-bold text-gray-800 drop-shadow-sm">
                 {value.toFixed(value % 1 === 0 ? 0 : 2)}
               </span>
             </div>
           </div>
         ) : (
-          <div 
+          <motion.div 
             className={cn(
-              "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0 flex items-center justify-center font-semibold text-white shadow-sm mr-2 sm:mr-3",
+              "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex-shrink-0 flex items-center justify-center font-semibold text-white shadow-sm mr-2",
               bgColor,
             )}
+            whileHover={{ scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 10 }}
           >
-            <span className="text-xs sm:text-sm">
+            <span className="text-xs">
               {isCoin 
                 ? `₪${value.toFixed(value % 1 === 0 ? 0 : 2)}` 
                 : `₪${value}`}
             </span>
-          </div>
+          </motion.div>
         )}
         <div className="flex-1 min-w-0">
-          <div className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          <div className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
             {label}
           </div>
           <div className="flex flex-wrap items-center gap-1 sm:gap-2">
-            <div className="w-14 sm:w-16">
+            <div className="w-12 sm:w-14">
               <Input
                 type="text"
                 inputMode="numeric"
                 value={count}
                 onChange={handleCountChange}
                 placeholder="0"
-                className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs sm:text-sm"
+                className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs"
                 aria-label={`Count of ${label}`}
               />
             </div>
-            <span className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">×</span>
-            <div className="w-14 sm:w-16">
+            <span className="text-gray-400 dark:text-gray-500 text-xs">×</span>
+            <div className="w-12 sm:w-14">
               <Input
                 type="text"
                 inputMode="numeric"
                 value={multiplier}
                 onChange={handleMultiplierChange}
                 placeholder="1"
-                className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs sm:text-sm"
+                className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs"
                 aria-label={`Multiplier for ${label}`}
               />
             </div>
-            <span className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">×</span>
-            <span className="text-gray-900 dark:text-gray-100 font-medium text-xs sm:text-sm whitespace-nowrap">
+            <span className="text-gray-400 dark:text-gray-500 text-xs">×</span>
+            <span className="text-gray-900 dark:text-gray-100 font-medium text-xs whitespace-nowrap">
               ₪{value.toFixed(value % 1 === 0 ? 0 : 2)}
             </span>
-            <span className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">=</span>
-            <span className="text-gray-900 dark:text-gray-100 font-medium text-xs sm:text-sm whitespace-nowrap ml-auto">
+            <span className="text-gray-400 dark:text-gray-500 text-xs">=</span>
+            <span className="text-gray-900 dark:text-gray-100 font-medium text-xs whitespace-nowrap ml-auto">
               ₪{total.toFixed(2)}
             </span>
           </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

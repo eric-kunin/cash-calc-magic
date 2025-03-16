@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -109,11 +110,11 @@
 
 @layer components {
   .money-input {
-    @apply w-full px-2 sm:px-3 py-1 sm:py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-right dark:bg-gray-700 dark:border-gray-600 dark:text-white;
+    @apply w-full px-2 py-1 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-right dark:bg-gray-700 dark:border-gray-600 dark:text-white;
   }
   
   .denomination-row {
-    @apply flex items-center p-2 sm:p-3 rounded-xl transition-all duration-300 mb-2;
+    @apply flex items-center p-2 rounded-xl transition-all duration-300 mb-2;
   }
   
   .denomination-row:hover {
@@ -128,14 +129,79 @@
     @apply bg-gray-800/80 backdrop-blur-lg border border-gray-700/40 shadow-sm;
   }
 
+  /* Enhanced animation classes */
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 0.5s ease-out forwards;
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out forwards;
+  }
+
+  .hover-grow {
+    @apply transition-transform duration-300;
+  }
+  
+  .hover-grow:hover {
+    @apply transform scale-105;
+  }
+
   @media (max-width: 640px) {
     .money-input {
-      @apply text-sm;
+      @apply text-xs;
     }
     
     .denomination-row {
-      @apply p-2;
+      @apply p-1.5;
     }
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 
