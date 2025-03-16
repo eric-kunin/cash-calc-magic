@@ -10,6 +10,7 @@ interface DenominationRowProps {
   onChange: (amount: number, total: number) => void;
   className?: string;
   colorScheme?: "green" | "purple";
+  initialCount?: number; // Added initialCount prop
 }
 
 const DenominationRow: React.FC<DenominationRowProps> = ({
@@ -20,10 +21,12 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   onChange,
   className,
   colorScheme = "green",
+  initialCount = 0, // Default to 0
 }) => {
-  const [count, setCount] = useState<string>("");
+  const [count, setCount] = useState<string>(initialCount.toString());
   const [total, setTotal] = useState<number>(0);
   
+  // Calculate total when count changes
   useEffect(() => {
     const parsedCount = parseInt(count) || 0;
     const calculatedTotal = value * parsedCount;

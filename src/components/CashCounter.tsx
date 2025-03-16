@@ -44,6 +44,7 @@ interface HistoryEntry {
 }
 
 const STORAGE_KEY = "cash-counter-history";
+const CURRENT_STATE_KEY = "cash-counter-current-state";
 
 const CashCounter: React.FC = () => {
   const [totals, setTotals] = useState<DenominationState>({});
@@ -53,14 +54,27 @@ const CashCounter: React.FC = () => {
   const [history, setHistory] = useState<HistoryEntry[]>([]);
   const [activeTab, setActiveTab] = useState("counter");
 
-  // Load history from localStorage on component mount
+  // Load history and current state from localStorage on component mount
   useEffect(() => {
+    // Load history
     const savedHistory = localStorage.getItem(STORAGE_KEY);
     if (savedHistory) {
       try {
         setHistory(JSON.parse(savedHistory));
       } catch (e) {
         console.error("Error parsing history from localStorage:", e);
+      }
+    }
+
+    // Load current state
+    const savedState = localStorage.getItem(CURRENT_STATE_KEY);
+    if (savedState) {
+      try {
+        const parsedState = JSON.parse(savedState);
+        setTotals(parsedState.totals || {});
+        // Don't need to set grandTotal, coinTotal, or noteTotal as they will be calculated in the next useEffect
+      } catch (e) {
+        console.error("Error parsing current state from localStorage:", e);
       }
     }
   }, []);
@@ -83,6 +97,38 @@ const CashCounter: React.FC = () => {
     setCoinTotal(coinsSum);
     setNoteTotal(notesSum);
     setGrandTotal(coinsSum + notesSum);
+
+    // Save current state to localStorage when it changes
+    if (Object.keys(totals).length > 0) {
+      saveCurrentState();
+    }
+  }, [totals]);
+
+  // Save current state to localStorage
+  const saveCurrentState = () => {
+    try {
+      const currentState = {
+        totals,
+        timestamp: new Date().toISOString()
+      };
+      localStorage.setItem(CURRENT_STATE_KEY, JSON.stringify(currentState));
+    } catch (e) {
+      console.error("Error saving current state to localStorage:", e);
+    }
+  };
+
+  // Add event listener for beforeunload to save state when user leaves
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveCurrentState();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    // Cleanup
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
   }, [totals]);
 
   // Handle changes for a denomination
@@ -149,16 +195,15 @@ const CashCounter: React.FC = () => {
   // Handle reset
   const handleReset = () => {
     setTotals({});
+    localStorage.removeItem(CURRENT_STATE_KEY);
     toast.info("Counter reset");
   };
 
   // Handle restore from history
   const restoreFromHistory = (entry: HistoryEntry) => {
     setTotals(entry.totals);
-    setCoinTotal(entry.coinTotal);
-    setNoteTotal(entry.noteTotal);
-    setGrandTotal(entry.grandTotal);
     setActiveTab("counter");
+    toast.success("Calculation restored successfully");
   };
 
   return (

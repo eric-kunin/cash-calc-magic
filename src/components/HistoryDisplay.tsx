@@ -49,13 +49,11 @@ const HistoryDisplay: React.FC<HistoryDisplayProps> = ({
 
   const handleRestore = (entry: HistoryEntry) => {
     onRestore(entry);
-    toast.success('Calculation restored');
   };
 
   const handleClearAll = () => {
     if (onClearAll && window.confirm('Are you sure you want to clear all history?')) {
       onClearAll();
-      toast.success('History cleared successfully');
     }
   };
 

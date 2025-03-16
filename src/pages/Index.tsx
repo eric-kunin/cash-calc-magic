@@ -20,6 +20,22 @@ const Index: React.FC = () => {
         document.documentElement.classList.add('ios-app');
       }
     }
+
+    // Add event listener for app state changes in Capacitor
+    document.addEventListener('resume', () => {
+      // App resumed from background
+      console.log('App resumed');
+    });
+
+    document.addEventListener('pause', () => {
+      // App paused/sent to background
+      console.log('App paused');
+    });
+
+    return () => {
+      document.removeEventListener('resume', () => {});
+      document.removeEventListener('pause', () => {});
+    };
   }, []);
 
   return (
