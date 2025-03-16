@@ -25,12 +25,12 @@ const CoinsSection: React.FC<CoinsSectionProps> = ({
   const { t } = useLanguage();
   
   const COINS = [
-    { value: 0.10, labelKey: '10Agorot', image: "/lovable-uploads/29d9897e-e276-43ce-9d8e-e908d3f1be27.png" },
-    { value: 0.50, labelKey: '50Agorot', image: "/lovable-uploads/5015f44e-5e08-407c-a23d-42ed6dc42401.png" },
-    { value: 1, labelKey: '1Shekel', image: "/lovable-uploads/639999d8-f0f3-4bbb-8fc9-a040412b6dc5.png" },
-    { value: 2, labelKey: '2Shekel', image: "/lovable-uploads/43ff1416-5eb2-403f-ac30-4cf3d01bb0c1.png" },
-    { value: 5, labelKey: '5Shekel', image: "/lovable-uploads/e53c39a9-d94a-4348-a899-b96b6f925616.png" },
-    { value: 10, labelKey: '10Shekel', image: "/lovable-uploads/f83c66d7-e502-4ad0-a4b0-1cc2502ef7bf.png" },
+    { value: 0.10, labelKey: '10Agorot', image: "/img/coin-0.10.png" },
+    { value: 0.50, labelKey: '50Agorot', image: "/img/coin-0.50.png" },
+    { value: 1, labelKey: '1Shekel', image: "/img/coin-1.png" },
+    { value: 2, labelKey: '2Shekel', image: "/img/coin-2.png" },
+    { value: 5, labelKey: '5Shekel', image: "/img/coin-5.png" },
+    { value: 10, labelKey: '10Shekel', image: "/img/coin-10.png" },
   ];
 
   return (
