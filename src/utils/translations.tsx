@@ -1,3 +1,4 @@
+import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 type Language = 'en' | 'he' | 'ru';
 
@@ -198,8 +199,6 @@ export const getTranslation = (key: string, language: Language): string => {
 };
 
 // Language context to manage the selected language
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
