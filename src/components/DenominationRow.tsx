@@ -28,7 +28,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   resetTrigger = 0,
 }) => {
   const [count, setCount] = useState<string>(initialCount.toString());
-  const [multiplier, setMultiplier] = useState<string>("");
+  const [multiplier, setMultiplier] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
   
   // Reset fields when resetTrigger changes, preventing flicker
@@ -36,7 +36,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     if (resetTrigger > 0) {
       // Directly set to initial values without causing a UI flicker
       setCount("0");
-      setMultiplier("");
+      setMultiplier("1");
     }
   }, [resetTrigger]);
   
@@ -49,23 +49,27 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   
   // Calculate total when count or multiplier changes
   useEffect(() => {
-    const parsedCount = parseInt(count) || 0;
-    // Allow empty multiplier field, defaulting to 1 for calculations
+    // Convert empty strings to default values for calculation
+    const parsedCount = count === "" ? 0 : parseInt(count) || 0;
     const parsedMultiplier = multiplier === "" ? 1 : parseInt(multiplier) || 1;
-    const calculatedTotal = value * parsedCount * parsedMultiplier;
+    
+    // Calculate the total with fixed precision to avoid floating point errors
+    const calculatedTotal = parseFloat((value * parsedCount * parsedMultiplier).toFixed(2));
     setTotal(calculatedTotal);
     onChange(parsedCount * parsedMultiplier, calculatedTotal);
   }, [count, multiplier, value, onChange]);
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numeric input and empty string
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     setCount(newValue);
   };
 
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow numeric input and empty string
     const newValue = e.target.value.replace(/[^0-9]/g, '');
-    // Allow empty value, but store it as empty string
-    setMultiplier(newValue);
+    // Use "1" as default if empty
+    setMultiplier(newValue === "" ? "1" : newValue);
   };
 
   // Color scheme variants

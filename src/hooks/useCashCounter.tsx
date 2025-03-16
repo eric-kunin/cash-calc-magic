@@ -33,9 +33,16 @@ const useCashCounter = () => {
   });
 
   const handleDenominationChange = (value: number, count: number, total: number) => {
+    // Ensure values are valid numbers
+    const safeCount = isNaN(count) ? 0 : count;
+    const safeTotal = isNaN(total) ? 0 : parseFloat(total.toFixed(2));
+    
     setTotals(prev => ({
       ...prev,
-      [value]: { count, total }
+      [value]: { 
+        count: safeCount, 
+        total: safeTotal 
+      }
     }));
   };
 
