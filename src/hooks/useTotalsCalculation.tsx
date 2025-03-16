@@ -8,19 +8,24 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
   const [noteTotal, setNoteTotal] = useState<number>(0);
 
   useEffect(() => {
+    // Initialize sums
     let coinsSum = 0;
     let notesSum = 0;
     
-    Object.entries(totals).forEach(([key, { count }]) => {
+    // Process each denomination
+    Object.entries(totals).forEach(([key, entry]) => {
+      // Parse denomination value and ensure it's a valid number
       const denomValue = parseFloat(key);
+      if (isNaN(denomValue)) return;
       
-      // Ensure count is a valid number
-      const safeCount = isNaN(count) ? 0 : count;
+      // Get count from entry, ensure it's a valid number
+      const count = entry?.count ?? 0;
+      if (isNaN(count) || count < 0) return;
       
-      // Calculate total directly to ensure consistency
-      const denomTotal = parseFloat((denomValue * safeCount).toFixed(2));
+      // Calculate this denomination's total
+      const denomTotal = parseFloat((denomValue * count).toFixed(2));
       
-      // Use 20 as the threshold between coins and notes
+      // Add to appropriate category (coins or notes)
       if (denomValue < 20) {
         coinsSum += denomTotal;
       } else {
@@ -28,11 +33,12 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
       }
     });
     
-    // Fix precision to avoid floating point errors
+    // Format totals to avoid floating point precision issues
     coinsSum = parseFloat(coinsSum.toFixed(2));
     notesSum = parseFloat(notesSum.toFixed(2));
     const totalSum = parseFloat((coinsSum + notesSum).toFixed(2));
     
+    // Update state
     setCoinTotal(coinsSum);
     setNoteTotal(notesSum);
     setGrandTotal(totalSum);

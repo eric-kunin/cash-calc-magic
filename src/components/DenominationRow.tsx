@@ -9,7 +9,7 @@ interface DenominationRowProps {
   label: string;
   isCoin: boolean;
   image?: string;
-  onChange: (amount: number, total: number) => void;
+  onChange: (value: number, count: number, total: number) => void;
   className?: string;
   colorScheme?: "green" | "purple";
   initialCount?: number;
@@ -27,67 +27,70 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   initialCount = 0,
   resetTrigger = 0,
 }) => {
-  const [count, setCount] = useState<string>(initialCount.toString());
+  const [count, setCount] = useState<string>(initialCount > 0 ? initialCount.toString() : "0");
   const [multiplier, setMultiplier] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
   
-  // Reset fields when resetTrigger changes, preventing flicker
+  // Reset when resetTrigger changes
   useEffect(() => {
     if (resetTrigger > 0) {
-      // Directly set to initial values without causing a UI flicker
       setCount("0");
       setMultiplier("1");
+      setTotal(0);
     }
   }, [resetTrigger]);
   
-  // Update when initialCount changes but not on reset
+  // Set count when initialCount changes (not during reset)
   useEffect(() => {
-    if (resetTrigger === 0) {
+    if (resetTrigger === 0 && initialCount > 0) {
       setCount(initialCount.toString());
     }
-  }, [initialCount]);
+  }, [initialCount, resetTrigger]);
   
-  // Calculate total when count or multiplier changes
+  // Recalculate total whenever inputs change
   useEffect(() => {
-    calculateAndUpdateTotal();
+    updateCalculation();
   }, [count, multiplier, value]);
   
-  const calculateAndUpdateTotal = () => {
-    // Parse values carefully to avoid NaN issues
-    const parsedCount = count === "" ? 0 : parseInt(count);
-    const parsedMultiplier = multiplier === "" || multiplier === "0" ? 1 : parseInt(multiplier);
+  const updateCalculation = () => {
+    // Parse numeric values safely
+    const numCount = count === "" ? 0 : parseInt(count);
+    const numMultiplier = multiplier === "" ? 1 : parseInt(multiplier) || 1;
     
-    // If any value is NaN, use 0 instead
-    const safeCount = isNaN(parsedCount) ? 0 : parsedCount;
-    const safeMultiplier = isNaN(parsedMultiplier) ? 1 : parsedMultiplier;
+    // Calculate with proper precision
+    const calculatedTotal = parseFloat((value * numCount * numMultiplier).toFixed(2));
     
-    // Calculate the total with fixed precision to avoid floating point errors
-    const calculatedTotal = parseFloat((value * safeCount * safeMultiplier).toFixed(2));
+    // Update local state
     setTotal(calculatedTotal);
-    onChange(safeCount * safeMultiplier, calculatedTotal);
+    
+    // Notify parent component with all values
+    onChange(value, numCount * numMultiplier, calculatedTotal);
   };
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove non-numeric characters
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     
-    // Prevent values from becoming too large
-    if (newValue === '' || parseInt(newValue) <= 9999) {
+    // Prevent values from becoming too large and handle empty case
+    if (newValue === '') {
+      setCount('');
+    } else if (parseInt(newValue) <= 9999) {
       setCount(newValue);
     }
   };
 
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Remove non-numeric characters
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     
-    // Prevent values from becoming too large and handle empty/zero values
-    if (newValue === '' || (parseInt(newValue) <= 999 && parseInt(newValue) > 0)) {
+    if (newValue === '') {
+      setMultiplier('');
+    } else if (parseInt(newValue) <= 999) {
       setMultiplier(newValue);
-    } else if (newValue === '0') {
-      setMultiplier('1'); // Default to 1 if user enters 0
     }
   };
 
-  // Color scheme variants
+  // Color scheme logic for visual presentation
   const getBgColor = () => {
     if (colorScheme === "purple") {
       if (isCoin) {
@@ -166,6 +169,12 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
                 placeholder="0"
                 className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs"
                 aria-label={`Count of ${label}`}
+                onBlur={() => {
+                  // Ensure we display "0" not empty string on blur
+                  if (count === "") {
+                    setCount("0");
+                  }
+                }}
               />
             </div>
             <span className="text-gray-400 dark:text-gray-500 text-xs">×</span>
@@ -178,6 +187,12 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
                 placeholder="1"
                 className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs"
                 aria-label={`Multiplier for ${label}`}
+                onBlur={() => {
+                  // Ensure we display "1" not empty string on blur
+                  if (multiplier === "") {
+                    setMultiplier("1");
+                  }
+                }}
               />
             </div>
             <span className="text-gray-400 dark:text-gray-500 text-xs">×</span>

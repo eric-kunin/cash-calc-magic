@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DenominationTotals } from "@/types/cashCounter";
 import { useTotalsCalculation } from "./useTotalsCalculation";
@@ -33,21 +32,34 @@ const useCashCounter = () => {
   });
 
   const handleDenominationChange = (value: number, count: number, total: number) => {
-    // Validate the count (should already be validated in the component)
-    if (count > 9999) {
-      count = 9999;
+    // Skip updates for invalid values
+    if (isNaN(value) || isNaN(count) || count < 0) {
+      return;
     }
     
-    // Calculate total directly from value and count to ensure consistency
-    const calculatedTotal = parseFloat((value * count).toFixed(2));
+    // Apply reasonable limits
+    const safeCount = Math.min(count, 9999);
     
-    setTotals(prev => ({
-      ...prev,
-      [value]: { 
-        count, 
-        total: calculatedTotal 
+    // Calculate the actual total with precision handling
+    const calculatedTotal = parseFloat((value * safeCount).toFixed(2));
+    
+    setTotals(prev => {
+      // If count is 0, remove this denomination from totals object
+      if (safeCount === 0) {
+        const newTotals = { ...prev };
+        delete newTotals[value];
+        return newTotals;
       }
-    }));
+      
+      // Otherwise update or add the denomination
+      return {
+        ...prev,
+        [value]: { 
+          count: safeCount, 
+          total: calculatedTotal 
+        }
+      };
+    });
   };
 
   return {

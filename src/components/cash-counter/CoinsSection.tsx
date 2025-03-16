@@ -58,8 +58,8 @@ const CoinsSection: React.FC<CoinsSectionProps> = ({
           label={t(coin.labelKey)}
           isCoin={true}
           image={fixImagePath(coin.image)}
-          onChange={(count, total) => 
-            onDenominationChange(coin.value, count, total)
+          onChange={(value, count, total) => 
+            onDenominationChange(value, count, total)
           }
           initialCount={totals[coin.value]?.count || 0}
           className="animate-slide-up"

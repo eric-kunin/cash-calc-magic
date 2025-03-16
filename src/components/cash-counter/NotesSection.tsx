@@ -56,8 +56,8 @@ const NotesSection: React.FC<NotesSectionProps> = ({
           label={t(note.labelKey)}
           isCoin={false}
           image={fixImagePath(note.image)}
-          onChange={(count, total) => 
-            onDenominationChange(note.value, count, total)
+          onChange={(value, count, total) => 
+            onDenominationChange(value, count, total)
           }
           initialCount={totals[note.value]?.count || 0}
           className="animate-slide-up"
