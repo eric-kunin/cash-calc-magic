@@ -1,193 +1,39 @@
-import React, { useEffect, useState } from "react";
-import { Calculator, Coins, Receipt, History, RefreshCcw, Save } from "lucide-react";
-import DenominationRow from "./DenominationRow";
-import AnimatedTotal from "./AnimatedTotal";
-import CurrencySymbol from "./CurrencySymbol";
-import { formatCurrency } from "@/utils/formatters";
+
+import React from "react";
+import { Calculator, Coins, Receipt, History } from "lucide-react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import HistoryDisplay from "./HistoryDisplay";
-import { toast } from "sonner";
-import { Button } from "./ui/button";
 import { useLanguage } from "@/utils/translations";
+import useCashCounter from "@/hooks/useCashCounter";
+
+// Import refactored components
+import CounterHeader from "./cash-counter/CounterHeader";
+import CoinsSection from "./cash-counter/CoinsSection";
+import NotesSection from "./cash-counter/NotesSection";
+import GrandTotalDisplay from "./cash-counter/GrandTotalDisplay";
+import CounterFooter from "./cash-counter/CounterFooter";
 
 const CashCounter: React.FC = () => {
   const { t, language } = useLanguage();
-  const [totals, setTotals] = useState<{
-    [key: string]: {
-      count: number;
-      total: number;
-    };
-  }>({});
-  const [grandTotal, setGrandTotal] = useState<number>(0);
-  const [coinTotal, setCoinTotal] = useState<number>(0);
-  const [noteTotal, setNoteTotal] = useState<number>(0);
-  const [history, setHistory] = useState<Array<{
-    id: string;
-    date: string;
-    totals: {
-      [key: string]: {
-        count: number;
-        total: number;
-      };
-    };
-    grandTotal: number;
-    coinTotal: number;
-    noteTotal: number;
-  }>>([]);
-  const [activeTab, setActiveTab] = useState("counter");
+  const {
+    totals,
+    grandTotal,
+    coinTotal,
+    noteTotal,
+    history,
+    activeTab,
+    setActiveTab,
+    handleDenominationChange,
+    saveToHistory,
+    deleteHistoryEntry,
+    clearAllHistory,
+    handleReset,
+    restoreFromHistory
+  } = useCashCounter();
 
-  const COINS = [
-    { value: 0.10, labelKey: '10Agorot', image: "/lovable-uploads/29d9897e-e276-43ce-9d8e-e908d3f1be27.png" },
-    { value: 0.50, labelKey: '50Agorot', image: "/lovable-uploads/5015f44e-5e08-407c-a23d-42ed6dc42401.png" },
-    { value: 1, labelKey: '1Shekel', image: "/lovable-uploads/639999d8-f0f3-4bbb-8fc9-a040412b6dc5.png" },
-    { value: 2, labelKey: '2Shekel', image: "/lovable-uploads/43ff1416-5eb2-403f-ac30-4cf3d01bb0c1.png" },
-    { value: 5, labelKey: '5Shekel', image: "/lovable-uploads/e53c39a9-d94a-4348-a899-b96b6f925616.png" },
-    { value: 10, labelKey: '10Shekel', image: "/lovable-uploads/f83c66d7-e502-4ad0-a4b0-1cc2502ef7bf.png" },
-  ];
-
-  const NOTES = [
-    { value: 20, labelKey: '20Note', image: "/lovable-uploads/232c4beb-07a5-42f0-a3fb-39efe6cacdd6.png" },
-    { value: 50, labelKey: '50Note', image: "/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
-    { value: 100, labelKey: '100Note', image: "/lovable-uploads/12384e86-2021-4796-b631-10a1ea264d03.png" },
-    { value: 200, labelKey: '200Note', image: "/public/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
-  ];
-
-  const STORAGE_KEY = "cash-counter-history";
-  const CURRENT_STATE_KEY = "cash-counter-current-state";
-
-  useEffect(() => {
-    const savedHistory = localStorage.getItem(STORAGE_KEY);
-    if (savedHistory) {
-      try {
-        setHistory(JSON.parse(savedHistory));
-      } catch (e) {
-        console.error("Error parsing history from localStorage:", e);
-      }
-    }
-
-    const savedState = localStorage.getItem(CURRENT_STATE_KEY);
-    if (savedState) {
-      try {
-        const parsedState = JSON.parse(savedState);
-        setTotals(parsedState.totals || {});
-      } catch (e) {
-        console.error("Error parsing current state from localStorage:", e);
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    let coinsSum = 0;
-    let notesSum = 0;
-    
-    Object.entries(totals).forEach(([key, { total }]) => {
-      const denomValue = parseFloat(key);
-      if (denomValue < 20) {
-        coinsSum += total;
-      } else {
-        notesSum += total;
-      }
-    });
-    
-    setCoinTotal(coinsSum);
-    setNoteTotal(notesSum);
-    setGrandTotal(coinsSum + notesSum);
-
-    if (Object.keys(totals).length > 0) {
-      saveCurrentState();
-    }
-  }, [totals]);
-
-  const saveCurrentState = () => {
-    try {
-      const currentState = {
-        totals,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem(CURRENT_STATE_KEY, JSON.stringify(currentState));
-    } catch (e) {
-      console.error("Error saving current state to localStorage:", e);
-    }
-  };
-
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      saveCurrentState();
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [totals]);
-
-  const handleDenominationChange = (value: number, count: number, total: number) => {
-    setTotals(prev => ({
-      ...prev,
-      [value]: { count, total }
-    }));
-  };
-
-  const saveToHistory = () => {
-    if (grandTotal === 0) return;
-
-    const newEntry = {
-      id: Date.now().toString(),
-      date: new Date().toLocaleString(language === 'he' ? 'he-IL' : language === 'ru' ? 'ru-RU' : 'en-US'),
-      totals: { ...totals },
-      grandTotal,
-      coinTotal,
-      noteTotal
-    };
-    
-    const updatedHistory = [newEntry, ...history];
-    setHistory(updatedHistory);
-    
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
-      toast.success(t('calculationSaved'));
-    } catch (e) {
-      console.error("Error saving to localStorage:", e);
-      toast.error("Failed to save calculation");
-    }
-  };
-
-  const deleteHistoryEntry = (id: string) => {
-    const updatedHistory = history.filter(entry => entry.id !== id);
-    setHistory(updatedHistory);
-    
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedHistory));
-    } catch (e) {
-      console.error("Error updating localStorage:", e);
-      toast.error("Failed to update history");
-    }
-  };
-
-  const clearAllHistory = () => {
-    setHistory([]);
-    
-    try {
-      localStorage.removeItem(STORAGE_KEY);
-    } catch (e) {
-      console.error("Error clearing localStorage:", e);
-      toast.error("Failed to clear history");
-    }
-  };
-
-  const handleReset = () => {
-    setTotals({});
-    localStorage.removeItem(CURRENT_STATE_KEY);
-    toast.info(t('counterReset'));
-  };
-
-  const restoreFromHistory = (entry: any) => {
-    setTotals(entry.totals);
-    setActiveTab("counter");
-    toast.success(t('calculationRestored'));
-  };
+  const isRTL = language === 'he';
+  const dir = isRTL ? 'rtl' : 'ltr';
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -211,9 +57,6 @@ const CashCounter: React.FC = () => {
     }
   };
 
-  const isRTL = language === 'he';
-  const dir = isRTL ? 'rtl' : 'ltr';
-
   return (
     <motion.div 
       className="max-w-xl mx-auto p-4"
@@ -222,41 +65,11 @@ const CashCounter: React.FC = () => {
       variants={containerVariants}
       dir={dir}
     >
-      <div className="flex items-center justify-between mb-6 sm:mb-8">
-        <motion.div 
-          className="flex items-center"
-          variants={itemVariants}
-        >
-          <CurrencySymbol className={`${isRTL ? 'ml-3 ml-sm-4' : 'mr-3 mr-sm-4'}`} />
-          <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">{t('appTitle')}</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{t('appSubtitle')}</p>
-          </div>
-        </motion.div>
-        <motion.div 
-          className="flex space-x-2"
-          variants={itemVariants}
-        >
-          <Button
-            onClick={handleReset}
-            variant="destructive"
-            size="sm"
-            className="gap-1 bg-red-600 hover:bg-red-700 transition-all duration-300 flex items-center"
-          >
-            <RefreshCcw size={16} />
-            <span className="hidden sm:inline">{t('reset')}</span>
-          </Button>
-          <Button
-            onClick={saveToHistory}
-            size="sm"
-            className="gap-1 bg-green-600 hover:bg-green-700 text-white transition-all duration-300 flex items-center"
-            disabled={grandTotal === 0}
-          >
-            <Save size={16} />
-            <span className="hidden sm:inline">{t('save')}</span>
-          </Button>
-        </motion.div>
-      </div>
+      <CounterHeader 
+        onReset={handleReset} 
+        onSave={saveToHistory} 
+        grandTotal={grandTotal} 
+      />
       
       <motion.div variants={itemVariants}>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6 sm:mb-8">
@@ -278,83 +91,17 @@ const CashCounter: React.FC = () => {
           </TabsList>
           
           <TabsContent value="counter" className="space-y-4 sm:space-y-6">
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 sm:p-5 glass-morphism dark:glass-morphism-dark"
-            >
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold flex items-center">
-                  <span className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center mr-2">
-                    <Coins size={18} className="text-white" />
-                  </span>
-                  <span className="text-gray-900 dark:text-gray-100">{t('coins')}</span>
-                </h2>
-              </div>
-              {COINS.map((coin) => (
-                <DenominationRow
-                  key={`coin-${coin.value}`}
-                  value={coin.value}
-                  label={t(coin.labelKey)}
-                  isCoin={true}
-                  image={coin.image}
-                  onChange={(count, total) => 
-                    handleDenominationChange(coin.value, count, total)
-                  }
-                  initialCount={totals[coin.value]?.count || 0}
-                  className="animate-slide-up"
-                  colorScheme="purple"
-                />
-              ))}
-              <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <div className="text-right">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('coinsSubtotal')}</div>
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {formatCurrency(coinTotal)}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <CoinsSection 
+              totals={totals} 
+              onDenominationChange={handleDenominationChange} 
+              coinTotal={coinTotal} 
+            />
             
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-              className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-4 sm:p-5 glass-morphism dark:glass-morphism-dark"
-            >
-              <div className="mb-4">
-                <h2 className="text-lg font-semibold flex items-center">
-                  <span className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center mr-2">
-                    <Receipt size={18} className="text-white" />
-                  </span>
-                  <span className="text-gray-900 dark:text-gray-100">{t('notes')}</span>
-                </h2>
-              </div>
-              {NOTES.map((note) => (
-                <DenominationRow
-                  key={`note-${note.value}`}
-                  value={note.value}
-                  label={t(note.labelKey)}
-                  isCoin={false}
-                  image={note.image}
-                  onChange={(count, total) => 
-                    handleDenominationChange(note.value, count, total)
-                  }
-                  initialCount={totals[note.value]?.count || 0}
-                  className="animate-slide-up"
-                  colorScheme="purple"
-                />
-              ))}
-              <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
-                <div className="text-right">
-                  <div className="text-sm text-gray-500 dark:text-gray-400">{t('notesSubtotal')}</div>
-                  <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {formatCurrency(noteTotal)}
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+            <NotesSection 
+              totals={totals} 
+              onDenominationChange={handleDenominationChange} 
+              noteTotal={noteTotal} 
+            />
           </TabsContent>
           
           <TabsContent value="history">
@@ -368,31 +115,9 @@ const CashCounter: React.FC = () => {
         </Tabs>
       </motion.div>
       
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-        className="rounded-2xl p-5 sm:p-6 bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 shadow-sm border border-purple-200 dark:border-purple-700"
-      >
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">{t('grandTotal')}</h2>
-            <AnimatedTotal total={grandTotal} />
-          </div>
-          <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white">
-            <Calculator size={24} />
-          </div>
-        </div>
-      </motion.div>
+      <GrandTotalDisplay grandTotal={grandTotal} />
       
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="text-center text-xs text-gray-500 dark:text-gray-400 mt-8 mb-4"
-      >
-        {t('madeBy')}
-      </motion.div>
+      <CounterFooter />
     </motion.div>
   );
 };

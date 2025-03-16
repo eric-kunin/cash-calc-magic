@@ -26,3 +26,11 @@ export const safeParseInt = (value: string): number => {
   const parsed = parseInt(value);
   return isNaN(parsed) ? 0 : parsed;
 };
+
+/**
+ * Fixes image paths to ensure they are correctly formatted
+ */
+export const fixImagePath = (path: string): string => {
+  // Remove any 'public/' prefix that might be in the path
+  return path.replace(/^public\//, '/');
+};
