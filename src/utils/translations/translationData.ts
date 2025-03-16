@@ -1,12 +1,5 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
 
-type Language = 'en' | 'he' | 'ru';
-
-interface Translations {
-  [key: string]: {
-    [language in Language]: string;
-  };
-}
+import { Translations } from './types';
 
 // All translatable text content
 export const translations: Translations = {
@@ -186,43 +179,10 @@ export const translations: Translations = {
     en: 'Made by Eric Kunin',
     he: 'נוצר על ידי אריק קונין',
     ru: 'Создано Эриком Куниным'
+  },
+  'noAmountToSave': {
+    en: 'Nothing to save',
+    he: 'אין מה לשמור',
+    ru: 'Нечего сохранять'
   }
-};
-
-// Get translation for a key in specified language
-export const getTranslation = (key: string, language: Language): string => {
-  if (!translations[key]) {
-    console.warn(`Translation key not found: ${key}`);
-    return key;
-  }
-  return translations[key][language];
-};
-
-// Language context to manage the selected language
-interface LanguageContextType {
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  t: (key: string) => string;
-}
-
-export const LanguageContext = createContext<LanguageContextType>({
-  language: 'en',
-  setLanguage: () => {},
-  t: (key: string) => key,
-});
-
-export const useLanguage = () => useContext(LanguageContext);
-
-export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('en');
-
-  const t = (key: string): string => {
-    return getTranslation(key, language);
-  };
-
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
 };
