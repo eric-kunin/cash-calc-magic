@@ -1,6 +1,7 @@
 
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Input } from "./ui/input";
 
 interface DenominationRowProps {
   value: number;
@@ -24,19 +25,26 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   initialCount = 0, // Default to 0
 }) => {
   const [count, setCount] = useState<string>(initialCount.toString());
+  const [multiplier, setMultiplier] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
   
-  // Calculate total when count changes
+  // Calculate total when count or multiplier changes
   useEffect(() => {
     const parsedCount = parseInt(count) || 0;
-    const calculatedTotal = value * parsedCount;
+    const parsedMultiplier = parseInt(multiplier) || 1;
+    const calculatedTotal = value * parsedCount * parsedMultiplier;
     setTotal(calculatedTotal);
-    onChange(parsedCount, calculatedTotal);
-  }, [count, value, onChange]);
+    onChange(parsedCount * parsedMultiplier, calculatedTotal);
+  }, [count, multiplier, value, onChange]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     setCount(newValue);
+  };
+
+  const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value.replace(/[^0-9]/g, '');
+    setMultiplier(newValue === '' ? '1' : newValue);
   };
 
   // Color scheme variants
@@ -65,7 +73,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   return (
     <div 
       className={cn(
-        "denomination-row dark:hover:bg-gray-700/50",
+        "denomination-row p-2 rounded-lg mb-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors",
         className
       )}
       style={{ animationDelay: `${(value * 10) % 200}ms` }}
@@ -100,24 +108,36 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[50px]">
             {label}
           </span>
-          <div className="flex-1 flex items-center">
+          <div className="flex-1 flex items-center flex-wrap md:flex-nowrap">
             <div className="flex-1 flex items-center space-x-2">
-              <div className="w-full max-w-[90px]">
-                <input
-                  type="number"
+              <div className="w-full max-w-[75px]">
+                <Input
+                  type="text"
+                  inputMode="numeric"
                   value={count}
-                  onChange={handleChange}
+                  onChange={handleCountChange}
                   placeholder="0"
-                  min="0"
-                  className="money-input dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                  className="money-input dark:bg-gray-700 dark:border-gray-600 dark:text-white text-center py-1 h-9"
                   aria-label={`Count of ${label}`}
                 />
               </div>
-              <span className="text-gray-400 dark:text-gray-500 px-2">×</span>
+              <span className="text-gray-400 dark:text-gray-500">×</span>
+              <div className="w-full max-w-[75px]">
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  value={multiplier}
+                  onChange={handleMultiplierChange}
+                  placeholder="1"
+                  className="money-input dark:bg-gray-700 dark:border-gray-600 dark:text-white text-center py-1 h-9"
+                  aria-label={`Multiplier for ${label}`}
+                />
+              </div>
+              <span className="text-gray-400 dark:text-gray-500">×</span>
               <span className="text-gray-900 dark:text-gray-100 font-medium">
                 ₪{value.toFixed(value % 1 === 0 ? 0 : 2)}
               </span>
-              <span className="text-gray-400 dark:text-gray-500 px-2">=</span>
+              <span className="text-gray-400 dark:text-gray-500">=</span>
               <span className="text-gray-900 dark:text-gray-100 font-medium min-w-[80px] text-right">
                 ₪{total.toFixed(2)}
               </span>
