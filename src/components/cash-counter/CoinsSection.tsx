@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Coins } from "lucide-react";
-import DenominationRow from "../DenominationRow";
+import DenominationRow from "../denomination/DenominationRow";
 import { formatCurrency, fixImagePath } from "@/utils/formatters";
 import { motion } from "framer-motion";
 import { useLanguage } from "@/utils/translations";
