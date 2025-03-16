@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { DenominationTotals } from "@/types/cashCounter";
 import { useTotalsCalculation } from "./useTotalsCalculation";
 import { useHistoryManagement } from "./useHistoryManagement";
@@ -32,7 +32,7 @@ const useCashCounter = () => {
     totals
   });
 
-  const handleDenominationChange = (value: number, count: number, total: number) => {
+  const handleDenominationChange = useCallback((value: number, count: number, total: number) => {
     // Skip updates for invalid values
     if (isNaN(value) || isNaN(count) || count < 0) {
       return;
@@ -64,7 +64,7 @@ const useCashCounter = () => {
         }
       };
     });
-  };
+  }, []);
 
   return {
     totals,
