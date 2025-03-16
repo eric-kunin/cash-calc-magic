@@ -42,6 +42,12 @@ const useCashCounter = () => {
     const safeCount = Math.min(count, 9999);
     
     setTotals(prev => {
+      // Check if the new value is same as current to prevent unnecessary updates
+      const currentCount = prev[value]?.count;
+      if (currentCount === safeCount) {
+        return prev; // No change needed
+      }
+      
       // If count is 0, remove this denomination from totals object
       if (safeCount === 0) {
         const newTotals = { ...prev };

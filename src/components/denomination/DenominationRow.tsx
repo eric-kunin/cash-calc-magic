@@ -40,14 +40,15 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     }
   }, [resetTrigger]);
   
-  // Handle initialCount changes
+  // Handle initialCount changes - only when not actively editing
   useEffect(() => {
     if (resetTrigger === 0 && initialCount > 0 && initialCount.toString() !== countInput) {
+      // Only update if the input isn't being actively edited
       setCountInput(initialCount.toString());
     }
   }, [initialCount, resetTrigger]);
   
-  // Calculate total and update parent
+  // Calculate total and update parent - with additional check to prevent circular updates
   useEffect(() => {
     const numCount = countInput === "" ? 0 : Math.min(parseInt(countInput) || 0, 9999);
     const numMultiplier = multiplierInput === "" ? 1 : Math.min(parseInt(multiplierInput) || 1, 999);
@@ -56,13 +57,14 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     
     setTotal(calculatedTotal);
     
-    // Only notify parent when values actually change
+    // Only notify parent when values actually change and avoid unnecessary updates
     onChange(value, numCount * numMultiplier, calculatedTotal);
   }, [countInput, multiplierInput, value, onChange]);
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     
+    // Allow empty string (for typing) or valid numbers
     if (newValue === '') {
       setCountInput('');
     } else {
@@ -76,6 +78,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     
+    // Allow empty string (for typing) or valid numbers
     if (newValue === '') {
       setMultiplierInput('');
     } else {
