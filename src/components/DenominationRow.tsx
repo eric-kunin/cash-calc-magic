@@ -49,6 +49,10 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   
   // Calculate total when count or multiplier changes
   useEffect(() => {
+    calculateAndUpdateTotal();
+  }, [count, multiplier, value]);
+  
+  const calculateAndUpdateTotal = () => {
     // Convert empty strings to default values for calculation
     const parsedCount = count === "" ? 0 : parseInt(count) || 0;
     // Always ensure multiplier is at least 1 for calculation
@@ -58,10 +62,10 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
     const calculatedTotal = parseFloat((value * parsedCount * parsedMultiplier).toFixed(2));
     setTotal(calculatedTotal);
     onChange(parsedCount * parsedMultiplier, calculatedTotal);
-  }, [count, multiplier, value, onChange]);
+  };
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only allow numeric input an d empty string
+    // Only allow numeric input and empty string
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     setCount(newValue);
   };
@@ -69,8 +73,9 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow numeric input and empty string
     const newValue = e.target.value.replace(/[^0-9]/g, '');
-    // Store as is, but never store as empty (use "1" instead)
-    setMultiplier(newValue || "1");
+    // Make sure we don't accept 0 as a multiplier value
+    const validMultiplier = newValue === "" || newValue === "0" ? "1" : newValue;
+    setMultiplier(validMultiplier);
   };
 
   // Color scheme variants

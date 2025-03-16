@@ -27,10 +27,11 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
     // Fix precision to avoid floating point errors
     coinsSum = parseFloat(coinsSum.toFixed(2));
     notesSum = parseFloat(notesSum.toFixed(2));
+    const totalSum = parseFloat((coinsSum + notesSum).toFixed(2));
     
     setCoinTotal(coinsSum);
     setNoteTotal(notesSum);
-    setGrandTotal(parseFloat((coinsSum + notesSum).toFixed(2)));
+    setGrandTotal(totalSum);
   }, [totals]);
 
   return {
