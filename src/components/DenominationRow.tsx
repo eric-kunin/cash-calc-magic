@@ -29,6 +29,12 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   const [multiplier, setMultiplier] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
   
+  // Reset fields when initialCount changes (especially when set to 0)
+  useEffect(() => {
+    setCount(initialCount.toString());
+    setMultiplier("1"); // Reset multiplier to default value when reset occurs
+  }, [initialCount]);
+  
   // Calculate total when count or multiplier changes
   useEffect(() => {
     const parsedCount = parseInt(count) || 0;
