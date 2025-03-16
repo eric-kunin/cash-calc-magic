@@ -40,9 +40,6 @@ const useCashCounter = () => {
     // Apply reasonable limits
     const safeCount = Math.min(count, 9999);
     
-    // Calculate the actual total with precision handling
-    const calculatedTotal = parseFloat((value * safeCount).toFixed(2));
-    
     setTotals(prev => {
       // If count is 0, remove this denomination from totals object
       if (safeCount === 0) {
@@ -56,7 +53,7 @@ const useCashCounter = () => {
         ...prev,
         [value]: { 
           count: safeCount, 
-          total: calculatedTotal 
+          total: parseFloat((value * safeCount).toFixed(2))
         }
       };
     });

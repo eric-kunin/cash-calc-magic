@@ -54,7 +54,7 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   
   const updateCalculation = () => {
     // Parse numeric values safely
-    const numCount = count === "" ? 0 : parseInt(count);
+    const numCount = count === "" ? 0 : parseInt(count) || 0;
     const numMultiplier = multiplier === "" ? 1 : parseInt(multiplier) || 1;
     
     // Calculate with proper precision
