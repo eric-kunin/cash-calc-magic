@@ -12,8 +12,8 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
     let notesSum = 0;
     
     Object.entries(totals).forEach(([key, { total }]) => {
-      // Ensure total is a valid number
-      const validTotal = isNaN(total) ? 0 : total;
+      // Ensure total is a valid number and properly formatted to 2 decimal places
+      const validTotal = isNaN(total) ? 0 : parseFloat(total.toFixed(2));
       const denomValue = parseFloat(key);
       
       // Use 20 as the threshold between coins and notes
@@ -25,8 +25,11 @@ export const useTotalsCalculation = (totals: DenominationTotals) => {
     });
     
     // Fix precision to avoid floating point errors
-    setCoinTotal(parseFloat(coinsSum.toFixed(2)));
-    setNoteTotal(parseFloat(notesSum.toFixed(2)));
+    coinsSum = parseFloat(coinsSum.toFixed(2));
+    notesSum = parseFloat(notesSum.toFixed(2));
+    
+    setCoinTotal(coinsSum);
+    setNoteTotal(notesSum);
     setGrandTotal(parseFloat((coinsSum + notesSum).toFixed(2)));
   }, [totals]);
 

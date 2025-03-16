@@ -33,9 +33,17 @@ const useCashCounter = () => {
   });
 
   const handleDenominationChange = (value: number, count: number, total: number) => {
-    // Ensure values are valid numbers
-    const safeCount = isNaN(count) ? 0 : count;
-    const safeTotal = isNaN(total) ? 0 : parseFloat(total.toFixed(2));
+    // Ensure values are valid numbers and prevent large/unexpected numbers
+    const safeCount = isNaN(count) ? 0 : Math.min(9999, Math.max(0, count));
+    
+    // Format total with 2 decimal places to avoid floating point errors
+    let safeTotal = isNaN(total) ? 0 : total;
+    safeTotal = parseFloat(safeTotal.toFixed(2));
+    
+    // Detect and prevent unreasonably large totals (sanity check)
+    if (safeTotal > 1000000000) {
+      safeTotal = 0;
+    }
     
     setTotals(prev => ({
       ...prev,
