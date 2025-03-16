@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
@@ -27,70 +26,55 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   initialCount = 0,
   resetTrigger = 0,
 }) => {
-  const [count, setCount] = useState<string>(initialCount > 0 ? initialCount.toString() : "0");
-  const [multiplier, setMultiplier] = useState<string>("1");
+  const [countInput, setCountInput] = useState<string>(initialCount > 0 ? initialCount.toString() : "0");
+  const [multiplierInput, setMultiplierInput] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
   
-  // Reset when resetTrigger changes
   useEffect(() => {
     if (resetTrigger > 0) {
-      setCount("0");
-      setMultiplier("1");
+      setCountInput("0");
+      setMultiplierInput("1");
       setTotal(0);
     }
   }, [resetTrigger]);
   
-  // Set count when initialCount changes (not during reset)
   useEffect(() => {
     if (resetTrigger === 0 && initialCount > 0) {
-      setCount(initialCount.toString());
+      setCountInput(initialCount.toString());
     }
   }, [initialCount, resetTrigger]);
   
-  // Recalculate total whenever inputs change
   useEffect(() => {
-    updateCalculation();
-  }, [count, multiplier, value]);
-  
-  const updateCalculation = () => {
-    // Parse numeric values safely
-    const numCount = count === "" ? 0 : parseInt(count) || 0;
-    const numMultiplier = multiplier === "" ? 1 : parseInt(multiplier) || 1;
+    const numCount = countInput === "" ? 0 : Math.min(parseInt(countInput) || 0, 9999);
+    const numMultiplier = multiplierInput === "" ? 1 : Math.min(parseInt(multiplierInput) || 1, 999);
     
-    // Calculate with proper precision
     const calculatedTotal = parseFloat((value * numCount * numMultiplier).toFixed(2));
     
-    // Update local state
     setTotal(calculatedTotal);
     
-    // Notify parent component with all values
     onChange(value, numCount * numMultiplier, calculatedTotal);
-  };
+  }, [countInput, multiplierInput, value, onChange]);
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove non-numeric characters
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     
-    // Prevent values from becoming too large and handle empty case
     if (newValue === '') {
-      setCount('');
+      setCountInput('');
     } else if (parseInt(newValue) <= 9999) {
-      setCount(newValue);
+      setCountInput(newValue);
     }
   };
 
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove non-numeric characters
     const newValue = e.target.value.replace(/[^0-9]/g, '');
     
     if (newValue === '') {
-      setMultiplier('');
+      setMultiplierInput('');
     } else if (parseInt(newValue) <= 999) {
-      setMultiplier(newValue);
+      setMultiplierInput(newValue);
     }
   };
 
-  // Color scheme logic for visual presentation
   const getBgColor = () => {
     if (colorScheme === "purple") {
       if (isCoin) {
@@ -164,15 +148,14 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
               <Input
                 type="text"
                 inputMode="numeric"
-                value={count}
+                value={countInput}
                 onChange={handleCountChange}
                 placeholder="0"
                 className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs"
                 aria-label={`Count of ${label}`}
                 onBlur={() => {
-                  // Ensure we display "0" not empty string on blur
-                  if (count === "") {
-                    setCount("0");
+                  if (countInput === "") {
+                    setCountInput("0");
                   }
                 }}
               />
@@ -182,15 +165,14 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
               <Input
                 type="text"
                 inputMode="numeric"
-                value={multiplier}
+                value={multiplierInput}
                 onChange={handleMultiplierChange}
                 placeholder="1"
                 className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs"
                 aria-label={`Multiplier for ${label}`}
                 onBlur={() => {
-                  // Ensure we display "1" not empty string on blur
-                  if (multiplier === "") {
-                    setMultiplier("1");
+                  if (multiplierInput === "") {
+                    setMultiplierInput("1");
                   }
                 }}
               />
