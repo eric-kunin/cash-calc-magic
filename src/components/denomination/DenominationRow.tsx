@@ -27,11 +27,23 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   initialCount = 0,
   resetTrigger = 0,
 }) => {
+  // Split the count and multiplier state to avoid cross-interference
   const [countInput, setCountInput] = useState<string>(initialCount > 0 ? initialCount.toString() : "0");
   const [multiplierInput, setMultiplierInput] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
-  const updateInProgressRef = useRef(false);
-  const lastNotifiedValuesRef = useRef({ count: 0, multiplier: 1 });
+  
+  // Use separate refs to track the actual source of changes
+  const isCountChangingRef = useRef(false);
+  const isMultiplierChangingRef = useRef(false);
+  const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitialSyncRef = useRef(true);
+  
+  // Track the last reported values to avoid unnecessary updates
+  const lastReportedValues = useRef({
+    count: parseInt(countInput) || 0,
+    multiplier: parseInt(multiplierInput) || 1,
+    total: 0
+  });
   
   // Handle reset trigger
   useEffect(() => {
@@ -39,56 +51,83 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
       setCountInput("0");
       setMultiplierInput("1");
       setTotal(0);
+      lastReportedValues.current = { count: 0, multiplier: 1, total: 0 };
     }
   }, [resetTrigger]);
   
   // Handle initialCount changes from props - only sync from parent when needed
   useEffect(() => {
-    // Only update if we're not currently editing and value is different
-    if (resetTrigger === 0 && 
-        initialCount > 0 && 
-        initialCount.toString() !== countInput && 
-        !updateInProgressRef.current) {
+    // Only update if this is initial sync or a reset was triggered
+    if ((isInitialSyncRef.current || resetTrigger > 0) && initialCount > 0) {
       setCountInput(initialCount.toString());
+      lastReportedValues.current.count = initialCount;
+      isInitialSyncRef.current = false;
     }
-  }, [initialCount, resetTrigger, countInput]);
+  }, [initialCount, resetTrigger]);
   
-  // Calculate total and notify parent
+  // Calculate the total only when inputs change - this doesn't notify the parent
   useEffect(() => {
     // Parse inputs with careful validation
-    const numCount = countInput === "" ? 0 : Math.min(parseInt(countInput) || 0, 9999);
-    const numMultiplier = multiplierInput === "" ? 1 : Math.min(parseInt(multiplierInput) || 1, 999);
+    const count = parseInt(countInput) || 0;
+    const multiplier = parseInt(multiplierInput) || 1;
     
     // Calculate new total
-    const calculatedTotal = parseFloat((value * numCount * numMultiplier).toFixed(2));
+    const calculatedTotal = parseFloat((value * count * multiplier).toFixed(2));
     
     // Only update local total if it's different
     if (total !== calculatedTotal) {
       setTotal(calculatedTotal);
     }
-    
-    // Check if we need to notify parent of changes
-    const newCount = numCount * numMultiplier;
-    if (lastNotifiedValuesRef.current.count !== newCount) {
-      // Set flag to prevent initialCount from overriding our value during the update
-      updateInProgressRef.current = true;
-      
-      // Use debounced approach to notify parent
-      const notifyTimeout = setTimeout(() => {
-        lastNotifiedValuesRef.current = { 
-          count: newCount, 
-          multiplier: numMultiplier 
-        };
-        onChange(value, newCount, calculatedTotal);
-        updateInProgressRef.current = false;
-      }, 100);
-      
-      return () => clearTimeout(notifyTimeout);
+  }, [countInput, multiplierInput, value]);
+  
+  // Separate effect only for notifying the parent of changes
+  useEffect(() => {
+    // Skip if we're resetting or during initial sync
+    if (resetTrigger > 0 || isInitialSyncRef.current) {
+      return;
     }
-  }, [countInput, multiplierInput, value, onChange, total]);
-
+    
+    const notifyParent = () => {
+      const count = parseInt(countInput) || 0;
+      const multiplier = parseInt(multiplierInput) || 1;
+      const newTotal = value * count * multiplier;
+      const effectiveCount = count * multiplier;
+      
+      // Only notify if values actually changed
+      if (effectiveCount !== lastReportedValues.current.count ||
+          newTotal !== lastReportedValues.current.total) {
+        
+        // Update our tracking of reported values
+        lastReportedValues.current = {
+          count: effectiveCount,
+          multiplier,
+          total: newTotal
+        };
+        
+        // Notify the parent component
+        onChange(value, effectiveCount, newTotal);
+      }
+    };
+    
+    // Clear any existing timeout to prevent multiple notifications
+    if (notificationTimeoutRef.current) {
+      clearTimeout(notificationTimeoutRef.current);
+    }
+    
+    // Delay notification to batch updates and break cycles
+    notificationTimeoutRef.current = setTimeout(notifyParent, 300);
+    
+    // Cleanup
+    return () => {
+      if (notificationTimeoutRef.current) {
+        clearTimeout(notificationTimeoutRef.current);
+      }
+    };
+  }, [total, value, onChange, countInput, multiplierInput, resetTrigger]);
+  
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
+    isCountChangingRef.current = true;
     
     // Allow empty string (for typing) or valid numbers
     if (newValue === '') {
@@ -99,10 +138,16 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
         setCountInput(newValue);
       }
     }
+    
+    // Reset flag after a short delay
+    setTimeout(() => {
+      isCountChangingRef.current = false;
+    }, 50);
   };
 
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
+    isMultiplierChangingRef.current = true;
     
     // Allow empty string (for typing) or valid numbers
     if (newValue === '') {
@@ -113,6 +158,11 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
         setMultiplierInput(newValue);
       }
     }
+    
+    // Reset flag after a short delay
+    setTimeout(() => {
+      isMultiplierChangingRef.current = false;
+    }, 50);
   };
 
   const handleCountBlur = () => {
