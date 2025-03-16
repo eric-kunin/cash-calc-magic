@@ -27,15 +27,15 @@ const AnimatedTotal: React.FC<AnimatedTotalProps> = ({ total, className }) => {
     <div className={cn("relative overflow-hidden", className)}>
       <div 
         className={cn(
-          "text-3xl md:text-4xl font-bold transition-all duration-300 ease-out",
-          isAnimating ? "transform scale-110 text-primary" : ""
+          "text-3xl md:text-4xl font-bold transition-all duration-300 ease-out text-purple-900 dark:text-purple-200",
+          isAnimating ? "transform scale-110 text-purple-600 dark:text-purple-300" : ""
         )}
       >
         {displayValue}
       </div>
       <div 
         className={cn(
-          "absolute bottom-0 left-0 h-1 bg-primary rounded-full transition-all duration-500 ease-out",
+          "absolute bottom-0 left-0 h-1 bg-purple-600 dark:bg-purple-400 rounded-full transition-all duration-500 ease-out",
           isAnimating ? "w-full opacity-100" : "w-0 opacity-0"
         )}
       />

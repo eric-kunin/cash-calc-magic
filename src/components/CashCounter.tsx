@@ -1,14 +1,15 @@
 
 import React, { useEffect, useState } from "react";
-import { Calculator } from "lucide-react";
+import { Calculator, Coins, Receipt } from "lucide-react";
 import DenominationRow from "./DenominationRow";
 import AnimatedTotal from "./AnimatedTotal";
 import CurrencySymbol from "./CurrencySymbol";
 import { formatCurrency } from "@/utils/formatters";
+import { motion } from "framer-motion";
 
 // Define our denominations
 const COINS = [
-  { value: 0.10, label: "10 Agorot" },
+  { value: 0.10, label: "10 Agorot", image: "/lovable-uploads/68c94da5-4b33-4d60-aca7-7c2d4e81841a.png" },
   { value: 0.50, label: "50 Agorot" },
   { value: 1, label: "1 Shekel" },
   { value: 2, label: "2 Shekel" },
@@ -75,57 +76,69 @@ const CashCounter: React.FC = () => {
         <div className="flex items-center">
           <CurrencySymbol className="mr-4" />
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Cash Counter</h1>
-            <p className="text-sm text-gray-500">Calculate your cash totals effortlessly</p>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100">Cash Counter</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Calculate your cash totals effortlessly</p>
           </div>
         </div>
         <button
           onClick={handleReset}
-          className="px-4 py-2 text-sm bg-secondary text-secondary-foreground rounded-md hover:bg-secondary/80 transition-colors"
+          className="px-4 py-2 text-sm bg-purple-100 text-purple-900 dark:bg-purple-900 dark:text-purple-100 rounded-md hover:bg-purple-200 dark:hover:bg-purple-800 transition-colors"
         >
           Reset
         </button>
       </div>
       
       <div className="space-y-6 mb-8">
-        <div className="bg-white rounded-2xl shadow-sm p-5 glass-morphism animate-slide-up">
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 glass-morphism dark:glass-morphism-dark animate-slide-up"
+        >
           <div className="mb-4">
             <h2 className="text-lg font-semibold flex items-center">
-              <span className="w-8 h-8 rounded-full bg-coin-gold flex items-center justify-center mr-2">
-                <span className="text-white font-bold">₪</span>
+              <span className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center mr-2">
+                <Coins size={18} className="text-white" />
               </span>
-              Coins
+              <span className="text-gray-900 dark:text-gray-100">Coins</span>
             </h2>
           </div>
-          {COINS.map((coin) => (
+          {COINS.map((coin, index) => (
             <DenominationRow
               key={`coin-${coin.value}`}
               value={coin.value}
               label={coin.label}
               isCoin={true}
+              image={coin.image}
               onChange={(count, total) => 
                 handleDenominationChange(coin.value, count, total)
               }
               className="animate-slide-up"
+              colorScheme="purple"
             />
           ))}
-          <div className="flex justify-end mt-4 pt-3 border-t border-gray-100">
+          <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="text-right">
-              <div className="text-sm text-gray-500">Coins Subtotal</div>
-              <div className="text-lg font-semibold">
+              <div className="text-sm text-gray-500 dark:text-gray-400">Coins Subtotal</div>
+              <div className="text-lg font-semibold text-gray-900 dark:text-white">
                 {formatCurrency(coinTotal)}
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
         
-        <div className="bg-white rounded-2xl shadow-sm p-5 glass-morphism animate-slide-up" style={{ animationDelay: "100ms" }}>
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm p-5 glass-morphism dark:glass-morphism-dark"
+        >
           <div className="mb-4">
             <h2 className="text-lg font-semibold flex items-center">
-              <span className="w-8 h-8 rounded-full bg-note-purple flex items-center justify-center mr-2">
-                <span className="text-white font-bold">₪</span>
+              <span className="w-8 h-8 rounded-full bg-purple-700 flex items-center justify-center mr-2">
+                <Receipt size={18} className="text-white" />
               </span>
-              Notes
+              <span className="text-gray-900 dark:text-gray-100">Notes</span>
             </h2>
           </div>
           {NOTES.map((note) => (
@@ -138,36 +151,39 @@ const CashCounter: React.FC = () => {
                 handleDenominationChange(note.value, count, total)
               }
               className="animate-slide-up"
+              colorScheme="purple"
             />
           ))}
-          <div className="flex justify-end mt-4 pt-3 border-t border-gray-100">
+          <div className="flex justify-end mt-4 pt-3 border-t border-gray-100 dark:border-gray-700">
             <div className="text-right">
-              <div className="text-sm text-gray-500">Notes Subtotal</div>
-              <div className="text-lg font-semibold">
+              <div className="text-sm text-gray-500 dark:text-gray-400">Notes Subtotal</div>
+              <div className="text-lg font-semibold text-gray-900 dark:text-white">
                 {formatCurrency(noteTotal)}
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
       
-      <div 
-        className="rounded-2xl p-6 bg-gradient-to-r from-money-light to-accent shadow-sm border border-accent animate-slide-up" 
-        style={{ animationDelay: "200ms" }}
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="rounded-2xl p-6 bg-gradient-to-r from-purple-100 to-purple-200 dark:from-purple-900 dark:to-purple-800 shadow-sm border border-purple-200 dark:border-purple-700"
       >
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-medium text-money-dark mb-1">Grand Total</h2>
+            <h2 className="text-sm font-medium text-purple-900 dark:text-purple-100 mb-1">Grand Total</h2>
             <AnimatedTotal total={grandTotal} />
           </div>
-          <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white">
+          <div className="w-12 h-12 rounded-full bg-purple-600 flex items-center justify-center text-white">
             <Calculator size={24} />
           </div>
         </div>
-      </div>
+      </motion.div>
       
-      <div className="text-center text-xs text-gray-500 mt-8 mb-4">
-        Built with 💚 for cashiers everywhere
+      <div className="text-center text-xs text-gray-500 dark:text-gray-400 mt-8 mb-4">
+        Built with 💜 for cashiers everywhere
       </div>
     </div>
   );

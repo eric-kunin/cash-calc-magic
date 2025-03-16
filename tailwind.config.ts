@@ -71,6 +71,15 @@ export default {
 				'coin-silver': '#E0E0E0',
 				'note-blue': '#4A7AA8',
 				'note-purple': '#8B5CF6',
+				// Purple palette colors
+				'purple-dark-1': '#10002B',
+				'purple-dark-2': '#240046',
+				'purple-dark-3': '#3C096C',
+				'purple-mid-1': '#5A189A',
+				'purple-mid-2': '#7B2CBF',
+				'purple-mid-3': '#9D4EDD',
+				'purple-light-1': '#C77DFF',
+				'purple-light-2': '#E0AAFF',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

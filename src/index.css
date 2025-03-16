@@ -16,24 +16,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 157 84% 30%;
+    --primary: 270 61% 38%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 270 91% 97%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 157 84% 95%;
-    --accent-foreground: 157 84% 20%;
+    --accent: 270 91% 97%;
+    --accent-foreground: 270 61% 38%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 157 84% 30%;
+    --ring: 270 61% 38%;
 
     --radius: 0.75rem;
 
@@ -57,16 +57,16 @@
     --popover: 224 71% 4%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 157 84% 30%;
+    --primary: 270 61% 75%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 270 31% 12%;
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 270 31% 12%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 62.8% 30.6%;
@@ -74,7 +74,7 @@
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 157 84% 40%;
+    --ring: 270 61% 75%;
     
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -114,14 +114,19 @@
   }
   
   .denomination-row {
-    @apply flex items-center space-x-3 p-3 rounded-xl transition-all duration-300 mb-2;
+    @apply flex items-center p-3 rounded-xl transition-all duration-300 mb-2;
   }
   
   .denomination-row:hover {
-    @apply bg-accent;
+    @apply bg-purple-50 dark:bg-gray-800;
   }
   
   .glass-morphism {
     @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-sm;
   }
+  
+  .glass-morphism-dark {
+    @apply bg-gray-800/80 backdrop-blur-lg border border-gray-700/40 shadow-sm;
+  }
 }
+
