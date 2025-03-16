@@ -73,21 +73,21 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   return (
     <div 
       className={cn(
-        "denomination-row p-2 rounded-lg mb-3 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors",
+        "denomination-row p-2 rounded-lg mb-2 hover:bg-gray-100 dark:hover:bg-gray-700/50 transition-colors",
         className
       )}
       style={{ animationDelay: `${(value * 10) % 200}ms` }}
     >
       <div className="flex items-center">
         {image ? (
-          <div className="relative mr-3">
+          <div className="relative mr-2 flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12">
             <img 
               src={image} 
               alt={label} 
-              className="w-12 h-12 rounded-full object-cover"
+              className="w-full h-full rounded-full object-cover"
             />
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm font-bold text-gray-800 drop-shadow-sm">
+              <span className="text-xs sm:text-sm font-bold text-gray-800 drop-shadow-sm">
                 {value.toFixed(value % 1 === 0 ? 0 : 2)}
               </span>
             </div>
@@ -95,53 +95,53 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
         ) : (
           <div 
             className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center font-semibold text-white shadow-sm mr-3",
+              "w-10 h-10 sm:w-12 sm:h-12 rounded-full flex-shrink-0 flex items-center justify-center font-semibold text-white shadow-sm mr-2 sm:mr-3",
               bgColor,
             )}
           >
-            {isCoin 
-              ? `₪${value.toFixed(value % 1 === 0 ? 0 : 2)}` 
-              : `₪${value}`}
+            <span className="text-xs sm:text-sm">
+              {isCoin 
+                ? `₪${value.toFixed(value % 1 === 0 ? 0 : 2)}` 
+                : `₪${value}`}
+            </span>
           </div>
         )}
-        <div className="flex-1 flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300 min-w-[50px]">
+        <div className="flex-1 min-w-0">
+          <div className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             {label}
-          </span>
-          <div className="flex-1 flex items-center flex-wrap md:flex-nowrap">
-            <div className="flex-1 flex items-center space-x-2">
-              <div className="w-full max-w-[75px]">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  value={count}
-                  onChange={handleCountChange}
-                  placeholder="0"
-                  className="money-input dark:bg-gray-700 dark:border-gray-600 dark:text-white text-center py-1 h-9"
-                  aria-label={`Count of ${label}`}
-                />
-              </div>
-              <span className="text-gray-400 dark:text-gray-500">×</span>
-              <div className="w-full max-w-[75px]">
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  value={multiplier}
-                  onChange={handleMultiplierChange}
-                  placeholder="1"
-                  className="money-input dark:bg-gray-700 dark:border-gray-600 dark:text-white text-center py-1 h-9"
-                  aria-label={`Multiplier for ${label}`}
-                />
-              </div>
-              <span className="text-gray-400 dark:text-gray-500">×</span>
-              <span className="text-gray-900 dark:text-gray-100 font-medium">
-                ₪{value.toFixed(value % 1 === 0 ? 0 : 2)}
-              </span>
-              <span className="text-gray-400 dark:text-gray-500">=</span>
-              <span className="text-gray-900 dark:text-gray-100 font-medium min-w-[80px] text-right">
-                ₪{total.toFixed(2)}
-              </span>
+          </div>
+          <div className="flex flex-wrap items-center gap-1 sm:gap-2">
+            <div className="w-14 sm:w-16">
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={count}
+                onChange={handleCountChange}
+                placeholder="0"
+                className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs sm:text-sm"
+                aria-label={`Count of ${label}`}
+              />
             </div>
+            <span className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">×</span>
+            <div className="w-14 sm:w-16">
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={multiplier}
+                onChange={handleMultiplierChange}
+                placeholder="1"
+                className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs sm:text-sm"
+                aria-label={`Multiplier for ${label}`}
+              />
+            </div>
+            <span className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">×</span>
+            <span className="text-gray-900 dark:text-gray-100 font-medium text-xs sm:text-sm whitespace-nowrap">
+              ₪{value.toFixed(value % 1 === 0 ? 0 : 2)}
+            </span>
+            <span className="text-gray-400 dark:text-gray-500 text-xs sm:text-sm">=</span>
+            <span className="text-gray-900 dark:text-gray-100 font-medium text-xs sm:text-sm whitespace-nowrap ml-auto">
+              ₪{total.toFixed(2)}
+            </span>
           </div>
         </div>
       </div>

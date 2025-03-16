@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -110,11 +109,11 @@
 
 @layer components {
   .money-input {
-    @apply w-full px-3 py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-right;
+    @apply w-full px-2 sm:px-3 py-1 sm:py-2 bg-white border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200 text-right dark:bg-gray-700 dark:border-gray-600 dark:text-white;
   }
   
   .denomination-row {
-    @apply flex items-center p-3 rounded-xl transition-all duration-300 mb-2;
+    @apply flex items-center p-2 sm:p-3 rounded-xl transition-all duration-300 mb-2;
   }
   
   .denomination-row:hover {
@@ -128,5 +127,22 @@
   .glass-morphism-dark {
     @apply bg-gray-800/80 backdrop-blur-lg border border-gray-700/40 shadow-sm;
   }
+
+  @media (max-width: 640px) {
+    .money-input {
+      @apply text-sm;
+    }
+    
+    .denomination-row {
+      @apply p-2;
+    }
+  }
 }
 
+.native-app {
+  @apply pb-0;
+}
+
+.ios-app {
+  @apply pt-10; /* Extra padding for iOS status bar */
+}
