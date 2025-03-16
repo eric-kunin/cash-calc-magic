@@ -24,6 +24,7 @@ export function useDenominationState({
   const isMultiplierChangingRef = useRef(false);
   const notificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitialSyncRef = useRef(true);
+  const resetTriggerRef = useRef(resetTrigger);
   
   // Track the last reported values to avoid unnecessary updates
   const lastReportedValues = useRef({
@@ -34,23 +35,29 @@ export function useDenominationState({
   
   // Handle reset trigger
   useEffect(() => {
-    if (resetTrigger > 0) {
+    if (resetTrigger > resetTriggerRef.current) {
       setCountInput("0");
       setMultiplierInput("1");
       setTotal(0);
       lastReportedValues.current = { count: 0, multiplier: 1, total: 0 };
+      
+      // Explicitly notify parent of zero values after reset
+      onChange(value, 0, 0);
     }
-  }, [resetTrigger]);
+    
+    // Update the ref to current reset trigger
+    resetTriggerRef.current = resetTrigger;
+  }, [resetTrigger, value, onChange]);
   
   // Handle initialCount changes from props - only sync from parent when needed
   useEffect(() => {
-    // Only update if this is initial sync or a reset was triggered
-    if ((isInitialSyncRef.current || resetTrigger > 0) && initialCount > 0) {
+    // Only update if this is initial sync or a reset was not just triggered
+    if (isInitialSyncRef.current && initialCount > 0) {
       setCountInput(initialCount.toString());
       lastReportedValues.current.count = initialCount;
       isInitialSyncRef.current = false;
     }
-  }, [initialCount, resetTrigger]);
+  }, [initialCount]);
   
   // Calculate the total and notify parent immediately when inputs change
   useEffect(() => {

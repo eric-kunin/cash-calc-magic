@@ -58,8 +58,6 @@ const useCashCounter = () => {
       }
       
       // Otherwise update or add the denomination with precise total
-      console.log(`Updating denomination ${value} with count ${safeCount} and total ${total}`);
-      
       return {
         ...prev,
         [value]: { 

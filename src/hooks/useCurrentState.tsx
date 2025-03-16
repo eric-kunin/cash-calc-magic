@@ -62,18 +62,15 @@ export const useCurrentState = (
   };
   
   const handleReset = () => {
+    // First clear the totals state
     setTotals({});
+    removeStoredState();
     
+    // Then trigger reset in child components
     setTimeout(() => {
       setResetTrigger(prev => prev + 1);
-    }, 10);
-    
-    try {
-      removeStoredState();
       toast.info(t('counterReset'));
-    } catch (e) {
-      console.error("Error removing from localStorage:", e);
-    }
+    }, 10);
   };
   
   return {
