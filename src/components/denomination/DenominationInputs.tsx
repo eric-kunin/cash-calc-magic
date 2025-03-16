@@ -1,6 +1,8 @@
 
 import React from "react";
 import { Input } from "../ui/input";
+import { formatCurrency } from "@/utils/formatters";
+import { useLanguage } from "@/utils/translations";
 
 interface DenominationInputsProps {
   countInput: string;
@@ -25,6 +27,8 @@ const DenominationInputs: React.FC<DenominationInputsProps> = ({
   onMultiplierBlur,
   total,
 }) => {
+  const { language } = useLanguage();
+  
   return (
     <div className="flex flex-wrap items-center gap-1 sm:gap-2">
       <div className="w-10 sm:w-12">

@@ -11,12 +11,15 @@ export const formatCurrency = (value: number, language: string = 'en'): string =
     locale = 'ru-RU';
   }
   
+  // Ensure value is a proper number and handle null/undefined
+  const safeValue = typeof value === 'number' && !isNaN(value) ? value : 0;
+  
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'ILS',
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(value);
+  }).format(safeValue);
 };
 
 /**

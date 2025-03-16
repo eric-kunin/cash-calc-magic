@@ -23,7 +23,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
   noteTotal,
   resetTrigger = 0
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const NOTES = [
     { value: 20, labelKey: '20Note', image: "/lovable-uploads/f83c66d7-e502-4ad0-a4b0-1cc2502ef7bf.png" },
@@ -63,7 +63,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
         <div className="text-right">
           <div className="text-sm text-gray-500 dark:text-gray-400">{t('notesSubtotal')}</div>
           <div className="text-lg font-semibold text-gray-900 dark:text-white">
-            {formatCurrency(noteTotal)}
+            {formatCurrency(noteTotal, language)}
           </div>
         </div>
       </div>

@@ -77,8 +77,8 @@ export function useDenominationState({
     const notifyParent = () => {
       const count = parseInt(countInput) || 0;
       const multiplier = parseInt(multiplierInput) || 1;
-      const newTotal = value * count * multiplier;
       const effectiveCount = count * multiplier;
+      const newTotal = parseFloat((value * effectiveCount).toFixed(2));
       
       // Only notify if values actually changed
       if (effectiveCount !== lastReportedValues.current.count ||
