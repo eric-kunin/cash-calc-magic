@@ -28,14 +28,12 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   resetTrigger = 0,
 }) => {
   const [count, setCount] = useState<string>(initialCount > 0 ? initialCount.toString() : "0");
-  const [multiplier, setMultiplier] = useState<string>("1");
   const [total, setTotal] = useState<number>(0);
   
   // Reset when resetTrigger changes
   useEffect(() => {
     if (resetTrigger > 0) {
       setCount("0");
-      setMultiplier("1");
       setTotal(0);
     }
   }, [resetTrigger]);
@@ -50,21 +48,20 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
   // Recalculate total whenever inputs change
   useEffect(() => {
     updateCalculation();
-  }, [count, multiplier, value]);
+  }, [count, value]);
   
   const updateCalculation = () => {
     // Parse numeric values safely
     const numCount = count === "" ? 0 : parseInt(count) || 0;
-    const numMultiplier = multiplier === "" ? 1 : parseInt(multiplier) || 1;
     
     // Calculate with proper precision
-    const calculatedTotal = parseFloat((value * numCount * numMultiplier).toFixed(2));
+    const calculatedTotal = parseFloat((value * numCount).toFixed(2));
     
     // Update local state
     setTotal(calculatedTotal);
     
     // Notify parent component with all values
-    onChange(value, numCount * numMultiplier, calculatedTotal);
+    onChange(value, numCount, calculatedTotal);
   };
 
   const handleCountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,17 +73,6 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
       setCount('');
     } else if (parseInt(newValue) <= 9999) {
       setCount(newValue);
-    }
-  };
-
-  const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove non-numeric characters
-    const newValue = e.target.value.replace(/[^0-9]/g, '');
-    
-    if (newValue === '') {
-      setMultiplier('');
-    } else if (parseInt(newValue) <= 999) {
-      setMultiplier(newValue);
     }
   };
 
@@ -173,24 +159,6 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
                   // Ensure we display "0" not empty string on blur
                   if (count === "") {
                     setCount("0");
-                  }
-                }}
-              />
-            </div>
-            <span className="text-gray-400 dark:text-gray-500 text-xs">×</span>
-            <div className="w-10 sm:w-12">
-              <Input
-                type="text"
-                inputMode="numeric"
-                value={multiplier}
-                onChange={handleMultiplierChange}
-                placeholder="1"
-                className="money-input text-center py-0 px-1 h-7 sm:h-8 text-xs"
-                aria-label={`Multiplier for ${label}`}
-                onBlur={() => {
-                  // Ensure we display "1" not empty string on blur
-                  if (multiplier === "") {
-                    setMultiplier("1");
                   }
                 }}
               />

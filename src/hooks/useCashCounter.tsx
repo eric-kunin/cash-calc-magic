@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { DenominationTotals } from "@/types/cashCounter";
 import { useTotalsCalculation } from "./useTotalsCalculation";
@@ -53,7 +54,7 @@ const useCashCounter = () => {
         ...prev,
         [value]: { 
           count: safeCount, 
-          total: parseFloat((value * safeCount).toFixed(2))
+          total: total // Use the calculated total that's passed in
         }
       };
     });
