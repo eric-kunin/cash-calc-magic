@@ -45,7 +45,8 @@ const DenominationRow: React.FC<DenominationRowProps> = ({
 
   const handleMultiplierChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value.replace(/[^0-9]/g, '');
-    setMultiplier(newValue === '' ? '1' : newValue);
+    // Don't reset to "1" when the field is empty during editing
+    setMultiplier(newValue);
   };
 
   // Color scheme variants
