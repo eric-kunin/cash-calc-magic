@@ -28,7 +28,7 @@ const NotesSection: React.FC<NotesSectionProps> = ({
     { value: 20, labelKey: '20Note', image: "/lovable-uploads/232c4beb-07a5-42f0-a3fb-39efe6cacdd6.png" },
     { value: 50, labelKey: '50Note', image: "/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
     { value: 100, labelKey: '100Note', image: "/lovable-uploads/12384e86-2021-4796-b631-10a1ea264d03.png" },
-    { value: 200, labelKey: '200Note', image: "/lovable-uploads/8c86f073-89f2-4b82-942c-5e46f0a7ed54.png" },
+    { value: 200, labelKey: '200Note', image: "/lovable-uploads/68c94da5-4b33-4d60-aca7-7c2d4e81841a.png" },
   ];
 
   return (
